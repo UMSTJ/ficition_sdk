@@ -63,4 +63,14 @@ struct FictionData
     ParamsData paramsData;
     std::string magneticData;
     std::string rfidData;
+    PowerInfo powerData;
+    float ultrasonic;
+};
+
+
+struct TwistCustom
+{
+    float linear_x;
+    float linear_y;
+    float angular_z;
 };

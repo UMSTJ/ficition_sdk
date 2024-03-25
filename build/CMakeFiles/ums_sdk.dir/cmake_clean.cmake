@@ -1,10 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/ums_sdk.dir/src/battery.cpp.o"
   "CMakeFiles/ums_sdk.dir/src/crc.cpp.o"
-  "CMakeFiles/ums_sdk.dir/src/imu.cpp.o"
-  "CMakeFiles/ums_sdk.dir/src/odom.cpp.o"
-  "CMakeFiles/ums_sdk.dir/src/params.cpp.o"
+  "CMakeFiles/ums_sdk.dir/src/crc.cpp.o.d"
   "CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o"
+  "CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o.d"
   "libums_sdk.pdb"
   "libums_sdk.so"
 )

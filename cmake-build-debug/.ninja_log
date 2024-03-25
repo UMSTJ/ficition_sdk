@@ -1,0 +1,18 @@
+# ninja log v5
+1	284	1711346612453687502	CMakeFiles/serial.dir/lib/serial/src/impl/unix.cc.o	3fe86c9ee7d2689f
+1	314	1711346612481688360	CMakeFiles/serial.dir/lib/serial/src/impl/list_ports/list_ports_linux.cc.o	29719eef72411318
+0	368	1711346612537690077	CMakeFiles/serial.dir/lib/serial/src/serial.cc.o	339f8b2979f7b184
+368	409	1711346612577691304	libserial.so	5d08690f5dff8ee8
+2	60	1711346620089921614	CMakeFiles/ums_sdk.dir/src/crc.cpp.o	cdc95d9508de1eb3
+2	676	1711346620705940498	CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o	1aaddde01ec99dd4
+676	733	1711346620761942215	libums_sdk.so	ec0b0e940dc539c4
+2	549	1711346860857281346	CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o	1aaddde01ec99dd4
+549	591	1711346860901282688	libums_sdk.so	ec0b0e940dc539c4
+1	589	1711348582105891193	CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o	1aaddde01ec99dd4
+589	636	1711348582153887563	libums_sdk.so	ec0b0e940dc539c4
+1	750	1711348789347935370	CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o	1aaddde01ec99dd4
+750	808	1711348789407931512	libums_sdk.so	ec0b0e940dc539c4
+2	579	1711349960635621905	CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o	1aaddde01ec99dd4
+579	623	1711349960679613666	libums_sdk.so	ec0b0e940dc539c4
+2	582	1711350452004539621	CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o	1aaddde01ec99dd4
+582	627	1711350452048534661	libums_sdk.so	ec0b0e940dc539c4
