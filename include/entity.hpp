@@ -53,6 +53,18 @@ struct ImuInfo
     double yaw;
     double pitch;
 };
+struct ICDRemote {
+    double az;
+    double vx;
+    double vy;
+
+};
+
+struct RCSBUSRemote {
+ int len;
+ uint16_t  axes [8];
+ uint16_t buttons [8];
+};
 
 
 
@@ -65,6 +77,9 @@ struct FictionData
     std::string rfidData;
     PowerInfo powerData;
     float ultrasonic;
+    float temperature;
+    ICDRemote icdData;
+    RCSBUSRemote rcsBusData;
 };
 
 

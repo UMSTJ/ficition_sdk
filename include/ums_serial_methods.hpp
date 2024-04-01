@@ -37,6 +37,9 @@ public:
         std::cout << "UmsSerial2" << std::endl;
         startSerial(portName, baudRate);
     }
+    ~UmsSerialMethods(){
+        sp.reset();
+    }
 
 private:
     int Rfid(std::vector<uint8_t> &byteVector);
@@ -46,6 +49,11 @@ private:
     int32_t HexArrayToInt32(uint8_t *hexArray, size_t size);
 
     float HexArrayToFloat32(uint8_t *hexArray, size_t size);
+
+    // ICD
+    ICDRemote convertBackDataToControl(int channel1Value, int channel2Value, int channel3Value);
+    // RCBUS
+    RCSBUSRemote convertRCBusRemote(std::vector<uint8_t> &byteVector);
 
     void tdLoopUmsFictionData(std::shared_ptr<serial::Serial> Sp, std::shared_ptr<FictionData> FictionData);
 

@@ -442,9 +442,13 @@ void UmsSerialMethods::createSerial(std::string portName, int baudRate)
         try
         {
             sp = std::make_shared<serial::Serial>(portName, baudRate, serial::Timeout::simpleTimeout(1000));
-            std::cout << "Serial port "+portName+" opened successfully"  << std::endl;
-
-            break;
+            if(sp->isOpen()){
+                std::cout << "Serial port "+portName+" opened successfully"  << std::endl;
+                break;
+            } else {
+                std::cout << "Serial port "+portName+" opened failed"  << std::endl;
+                sp = nullptr;
+            }
         }
         catch (const std::exception &e)
         {
@@ -552,7 +556,36 @@ ParamsData UmsSerialMethods::ParamDataRead(uint8_t *data)
     }
     return result;
 }
+ICDRemote UmsSerialMethods::convertBackDataToControl(int channel1Value, int channel2Value, int channel3Value) {
+    float maxOutputValue = 50.0; // 最大输出值
 
+    ICDRemote icdRemoteData{};
+
+    // 自转角速度转换
+    float yawRate = (channel1Value / maxOutputValue) * 180; // 假设最大自转角速度为±180度/秒
+
+    // Vx线速度转换
+    float vxSpeed = (channel2Value / maxOutputValue) * 1; // 假设Vx的最大速度为±1m/s
+
+    // Vy线速度转换
+    float vySpeed = (channel3Value / maxOutputValue) * 1; // 假设Vy的最大速度为±1m/s
+    icdRemoteData.az =yawRate;
+    icdRemoteData.vx = vxSpeed;
+    icdRemoteData.vy = vySpeed;
+    return icdRemoteData;
+
+
+}
+
+RCSBUSRemote UmsSerialMethods::convertRCBusRemote(std::vector<uint8_t> &byteVector) {
+    RCSBUSRemote rcsbusRemote;
+    rcsbusRemote.len = byteVector[3];
+    for (int index = 0;index <8; index = index+2){
+        uint16_t result = (static_cast<uint16_t>(byteVector[index + 5]) << 8) | byteVector[index + 4];
+        rcsbusRemote.axes[index / 2] = result;
+    }
+    return rcsbusRemote;
+}
 void UmsSerialMethods::loopUmsFictionData(std::shared_ptr<serial::Serial> Sp,
                                           std::shared_ptr<FictionData> FictionData) {
     rdThread = std::thread(&UmsSerialMethods::tdLoopUmsFictionData, this, Sp, FictionData);
@@ -563,8 +596,8 @@ void UmsSerialMethods::tdLoopUmsFictionData(std::shared_ptr<serial::Serial> Sp, 
 {
     if (Sp != nullptr && FictionData != nullptr)
     {
-        printf("read serial start");
-        while (Sp->available() != 0)
+        printf("\n read serial start");
+        while (Sp->available() != 0 && !stopFlag)
         {
             /* code */
             std::string str = Sp->readline();
@@ -591,10 +624,13 @@ void UmsSerialMethods::tdLoopUmsFictionData(std::shared_ptr<serial::Serial> Sp, 
                 case 0x52: // rfid数据
                     FictionData->rfidData = Rfid(buffer);
                     break;
-                case 0x46: // 遥控数据
+                case 0x46: // 遥控数据RC SBUS
                 {
-                    // RCLCPP_INFO(this->get_logger(),"遥控数据");
-                    // RemoteDataProcessing(NativeData);
+                    FictionData->rcsBusData = convertRCBusRemote(buffer);
+                }
+                case 0x49: //ICD遥控
+                {
+                    FictionData->icdData = convertBackDataToControl(buffer[4],buffer[5],buffer[6]);
                     break;
                 }
                 case 0x4b: // 里程计
@@ -602,17 +638,11 @@ void UmsSerialMethods::tdLoopUmsFictionData(std::shared_ptr<serial::Serial> Sp, 
                     FictionData->odomData = OdomDataProcess(buffer);
                 }
                 break;
-                case 0x56: // 电机数据
-
-                    break;
-                case 0x57: // 电机控制数据
-
-                    break;
-                case 0x53: // 四个电机的相关数据
+                case 0x53: // 四个电机速度数据
 
                     break;
                 case 0x54: // 数字式温度传感器
-
+                    FictionData->temperature =static_cast<float>((buffer[4] << 8) | buffer[5]);
                     break;
                 case 0x55: // 超声数据
                     FictionData->ultrasonic = static_cast<float>((buffer[4] << 8) | buffer[5]);

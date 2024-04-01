@@ -108,6 +108,16 @@ build libserial.so: CXX_SHARED_LIBRARY_LINKER__serial_Debug CMakeFiles/serial.di
 
 build cmake_object_order_depends_target_ums_sdk: phony || cmake_object_order_depends_target_serial
 
+build CMakeFiles/ums_sdk.dir/src/battery.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Debug /home/anaple/ums_sdk/src/battery.cpp || cmake_object_order_depends_target_ums_sdk
+  DEFINES = -Dums_sdk_EXPORTS
+  DEP_FILE = CMakeFiles/ums_sdk.dir/src/battery.cpp.o.d
+  FLAGS = -g -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/ums_sdk.dir
+  OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/ums_sdk.dir/
+  TARGET_PDB = libums_sdk.pdb
+
 build CMakeFiles/ums_sdk.dir/src/crc.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Debug /home/anaple/ums_sdk/src/crc.cpp || cmake_object_order_depends_target_ums_sdk
   DEFINES = -Dums_sdk_EXPORTS
   DEP_FILE = CMakeFiles/ums_sdk.dir/src/crc.cpp.o.d
@@ -136,7 +146,7 @@ build CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o: CXX_COMPILER__ums_sdk
 #############################################
 # Link the shared library libums_sdk.so
 
-build libums_sdk.so: CXX_SHARED_LIBRARY_LINKER__ums_sdk_Debug CMakeFiles/ums_sdk.dir/src/crc.cpp.o CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o | libserial.so || libserial.so
+build libums_sdk.so: CXX_SHARED_LIBRARY_LINKER__ums_sdk_Debug CMakeFiles/ums_sdk.dir/src/battery.cpp.o CMakeFiles/ums_sdk.dir/src/crc.cpp.o CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o | libserial.so || libserial.so
   LANGUAGE_COMPILE_FLAGS = -g
   LINK_LIBRARIES = -Wl,-rpath,/home/anaple/ums_sdk/cmake-build-debug  libserial.so  -lrt  -lpthread
   OBJECT_DIR = CMakeFiles/ums_sdk.dir
