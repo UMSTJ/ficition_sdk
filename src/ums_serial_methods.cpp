@@ -241,14 +241,12 @@ bool UmsSerialMethods::DataCheck(std::vector<uint8_t> &data)
 
     if (result_h == data[data.size() - 3] && result_l == data[data.size() - 2])
     {
-        //    {   printf("2 if");
-
-        return 1;
+        return true;
     }
     else
     {
 
-        return 0;
+        return false;
     }
 }
 /**********************************************************************
@@ -426,24 +424,16 @@ ImuInfo UmsSerialMethods::ImuDataProcess(std::vector<uint8_t> ImuData)
     }
     return ImuStructural;
 }
-
 std::shared_ptr<serial::Serial> UmsSerialMethods::getSerial()
 {
-    int count  = 0;
-    while (count <=10){
-        if(sp != nullptr){
-            std::cout << "Serial port get successfully"  << std::endl;
-            return sp;
-        } else{
-            sleep(1);
-        }
-        count ++;
+
+    if (spThread.joinable())
+    {
+        spThread.join(); // 确保之前的线程已经完成
     }
-    std::cout << "Serial port get failed"  << std::endl;
-    return nullptr;
+    return sp;
 
 }
-
 void UmsSerialMethods::createSerial(std::string portName, int baudRate)
 {
     while (!stopFlag)
@@ -648,13 +638,12 @@ void UmsSerialMethods::sendTwistData(std::shared_ptr<serial::Serial> Sp, std::sh
         SendHexData.insert(SendHexData.end(), LeftWheelSpeed.begin(), LeftWheelSpeed.end());
         SendHexData.insert(SendHexData.end(), RightWheelSpeed.begin(), RightWheelSpeed.end());
         SendHexData.insert(SendHexData.end(), AngularVelocity.begin(), AngularVelocity.end());
-        Sp->write(SendHexData);
+        SendHexData = DataDelivery(0x4b, SendHexData);
 
+        Sp->write(SendHexData);
 
     }
 }
-
-
 void UmsSerialMethods::test(uint8_t a)
 {
 
@@ -685,7 +674,7 @@ void UmsSerialMethods::startSerial(std::string portName, int baudRate)
     stopFlag = false;
     try
     {
-        std::cout << "wait" + portName << std::endl;
+        printf("wait %s,%d",portName.c_str(),baudRate);
         spThread = std::thread(&UmsSerialMethods::createSerial, this, portName, baudRate);
 
     }
