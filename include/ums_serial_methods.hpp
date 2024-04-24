@@ -14,48 +14,86 @@
 #include <thread>
 #include <future>
 #include <unistd.h>
-#include "serial.h"
+#include "serial/serial.h"
 #include "crc.hpp"
 #include "entity.hpp"
+#include <log4cpp/Category.hh>
+#include <log4cpp/OstreamAppender.hh>
+#include <log4cpp/PatternLayout.hh>
+
 
 class UmsSerialMethods
 {
 public:
     std::shared_ptr<serial::Serial> getSerial();
-    void sendTwistData(std::shared_ptr<serial::Serial> Sp, std::shared_ptr<TwistCustom> twistData);
-    void test(uint8_t a);
-    void loopUmsFictionData(std::shared_ptr<serial::Serial> Sp, std::shared_ptr<FictionData> FictionData);
-    void sendGetParamData(std::shared_ptr<serial::Serial> Sp);
-    void reStartSerial(std::string portName, int baudRate);
-    void startSerial(std::string portName, int baudRate);
+    void sendTwistData(const std::shared_ptr<TwistCustom>& twistData);
+    void loopUmsFictionData(const std::shared_ptr<FictionData>& FictionData);
+    void sendMessageToGetParamData();
+    void reStartSerial(const std::string& portName, int baudRate);
+    void startSerial(const std::string& portName, int baudRate);
+    void setParamsData(ParamsData paramsData);
+    void sendEditParamsData(){
+        ParamDataWrite();
+    }
+    void refuseController();
+
     UmsSerialMethods()
     {
-        std::cout << "UmsSerial" << std::endl;
+
+        // 创建一个输出到标准输出的Appender
+        log4cpp::OstreamAppender* osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
+
+        // 创建布局并设置模式
+        log4cpp::PatternLayout* layout = new log4cpp::PatternLayout();
+        layout->setConversionPattern("[%-5p%c] [%d{%Y-%m-%d %H:%M:%S}] [UMS_SDK] : %m%n");
+
+        // 将布局设置给Appender
+        osAppender->setLayout(layout);
+        root.setPriority(log4cpp::Priority::DEBUG);
+        root.addAppender(osAppender);
+        root.info("UmsSerialSDK Init");
+
+
     };
-    UmsSerialMethods(std::string portName, int baudRate)
+    UmsSerialMethods(const std::string& portName, int baudRate)
     {
-        std::cout << "UmsSerial2" << std::endl;
+        // 创建一个输出到标准输出的Appender
+        log4cpp::OstreamAppender *osAppender;
+        osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
+
+        // 创建布局并设置模式
+        log4cpp::PatternLayout *layout;
+        layout = new log4cpp::PatternLayout();
+        layout->setConversionPattern("[%-5p%c] [%d{%Y-%m-%d %H:%M:%S}] [UMS_SDK] : %m%n");
+
+        // 将布局设置给Appender
+        osAppender->setLayout(layout);
+        root.setPriority(log4cpp::Priority::DEBUG);
+        root.addAppender(osAppender);
+        root.info("UmsSerialSDK Init start serial");
         startSerial(portName, baudRate);
     }
     ~UmsSerialMethods(){
         sp.reset();
+
     }
 
 private:
     int Rfid(std::vector<uint8_t> &byteVector);
-
-    std::string magneticDataProcess(std::vector<uint8_t> NativeData);
+    void getSysStatus();
+    std::string magneticDataProcess(const std::vector<uint8_t>& NativeData);
 
     int32_t HexArrayToInt32(uint8_t *hexArray, size_t size);
 
     float HexArrayToFloat32(uint8_t *hexArray, size_t size);
-
+    // 参数数据写入
+    bool ParamDataWrite();
     // ICD
     ICDRemote convertBackDataToControl(int channel1Value, int channel2Value, int channel3Value);
     // RCBUS
     RCSBUSRemote convertRCBusRemote(std::vector<uint8_t> &byteVector);
 
-    void tdLoopUmsFictionData(std::shared_ptr<serial::Serial> Sp, std::shared_ptr<FictionData> FictionData);
+    void tdLoopUmsFictionData(const std::shared_ptr<serial::Serial>& Sp, const std::shared_ptr<FictionData>& FictionData);
 
     /**********************************************************************
     函数功能：消息帧内容转义
@@ -71,14 +109,14 @@ private:
     **********************************************************************/
     std::vector<uint8_t> DataDelivery(uint8_t signbit, std::vector<uint8_t> &Vector);
 
-    void LowerParameterOperationInt(std::string readOrwrite, uint8_t address, int32_t data, std::shared_ptr<serial::Serial> Sp);
+    void LowerParameterOperationInt(const std::string& basicString, uint8_t address, int32_t data, const std::shared_ptr<serial::Serial>& Sp);
 
     /**********************************************************************
     函数功能：下位参数读写操作 FLOAT
     入口参数：red_write读取或写入  address写入的地址  data写入的数据
     返回  值：无
     **********************************************************************/
-    void LowerParameterOperation(std::string red_write, uint8_t address, float data, std::shared_ptr<serial::Serial> Sp);
+    void LowerParameterOperation(const std::string& red_write, uint8_t address, float data, const std::shared_ptr<serial::Serial>& Sp);
 
     /**********************************************************************
     函数功能：数据校验
@@ -115,16 +153,34 @@ private:
     **********************************************************************/
     void EscapeVector(std::vector<uint8_t> &byteVector);
 
-    PowerInfo PowerDataProcess(std::vector<uint8_t> NativeData);
+    PowerInfo PowerDataProcess(const std::vector<uint8_t>& NativeData);
     ImuInfo ImuDataProcess(std::vector<uint8_t> ImuData);
-    OdomInfo OdomDataProcess(std::vector<uint8_t> ImuData);
+    OdomInfo OdomDataProcess(const std::vector<uint8_t>& ImuData);
     ParamsData ParamDataRead(uint8_t *data);
+
+
+    void createSerial(const std::string& portName, int baudRate);
+    void monitorTimeout();
+    void loopToGetSysStatus();
+    ImuInfo ImuStructural{};
+
+
+
     std::shared_ptr<serial::Serial> sp;
-    void createSerial(std::string portName, int baudRate);
+    std::shared_ptr<FictionData> fictionData;
 
     std::atomic<bool> stopFlag = false;
+    std::atomic<bool> timeoutOccurred{};
+    std::chrono::steady_clock::time_point lastReceiveTime;
     std::thread spThread;
     std::thread rdThread;
+    std::thread reThread;
+    std::thread sysStatusThread;
+    ParamsData inputParam{};
+    log4cpp::Category& root = log4cpp::Category::getRoot() ;
+
+
+    std::string stringToHex(const std::string &input);
 };
 
-#endif // UMS_FICTION_DRIVER_MAIN_UMS_SERIAL_METHODS_H
+#endif // UMS_SERIAL_METHODS_H_
