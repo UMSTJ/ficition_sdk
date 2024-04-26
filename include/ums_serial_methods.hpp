@@ -20,26 +20,36 @@
 #include <log4cpp/Category.hh>
 #include <log4cpp/OstreamAppender.hh>
 #include <log4cpp/PatternLayout.hh>
+#include "Queue.h"
+using namespace std;
 
 
 class UmsSerialMethods
 {
 public:
     std::shared_ptr<serial::Serial> getSerial();
+    // 发送Twist运动学数据
     void sendTwistData(const std::shared_ptr<TwistCustom>& twistData);
+    // 下位数据交换主循环
     void loopUmsFictionData(const std::shared_ptr<FictionData>& FictionData);
+    // 发送获取参数命令
     void sendMessageToGetParamData();
+    // 重新启动串口
     void reStartSerial(const std::string& portName, int baudRate);
+    // 启动串口
     void startSerial(const std::string& portName, int baudRate);
+    // 设置下位需要写入的参数
     void setParamsData(ParamsData paramsData);
+    // 发送参数写入命令
     void sendEditParamsData(){
         ParamDataWrite();
     }
+    // 恢复控制器
     void refuseController();
 
     UmsSerialMethods()
     {
-
+        circularQueue = std::make_shared<CircularQueue>(4);
         // 创建一个输出到标准输出的Appender
         log4cpp::OstreamAppender* osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
 
@@ -57,6 +67,7 @@ public:
     };
     UmsSerialMethods(const std::string& portName, int baudRate)
     {
+        circularQueue = std::make_shared<CircularQueue>(4);
         // 创建一个输出到标准输出的Appender
         log4cpp::OstreamAppender *osAppender;
         osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
@@ -72,10 +83,6 @@ public:
         root.addAppender(osAppender);
         root.info("UmsSerialSDK Init start serial");
         startSerial(portName, baudRate);
-    }
-    ~UmsSerialMethods(){
-        sp.reset();
-
     }
 
 private:
@@ -166,6 +173,8 @@ private:
 
 
 
+
+
     std::shared_ptr<serial::Serial> sp;
     std::shared_ptr<FictionData> fictionData;
 
@@ -179,8 +188,18 @@ private:
     ParamsData inputParam{};
     log4cpp::Category& root = log4cpp::Category::getRoot() ;
 
+    std::shared_ptr<CircularQueue> circularQueue;
+
 
     std::string stringToHex(const std::string &input);
+
+    bool extractPacket(vector <uint8_t> &buffer, vector <uint8_t> &packet);
+
+    std::vector<uint8_t>  comFrameReduction(std::vector<uint8_t>& arr);
+    size_t findElement(const vector<uint8_t> &buffer, uint8_t element, size_t startPos);
+
+
+    void readSerialData();
 };
 
 #endif // UMS_SERIAL_METHODS_H_
