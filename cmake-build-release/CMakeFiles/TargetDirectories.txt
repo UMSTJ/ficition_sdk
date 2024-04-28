@@ -1,0 +1,4 @@
+/home/anaple/ums_sdk/cmake-build-release/CMakeFiles/serial.dir
+/home/anaple/ums_sdk/cmake-build-release/CMakeFiles/ums_sdk.dir
+/home/anaple/ums_sdk/cmake-build-release/CMakeFiles/edit_cache.dir
+/home/anaple/ums_sdk/cmake-build-release/CMakeFiles/rebuild_cache.dir
