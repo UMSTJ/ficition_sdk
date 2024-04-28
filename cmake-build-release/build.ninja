@@ -53,7 +53,7 @@ build CMakeFiles/serial.dir/lib/serial/src/serial.cc.o: CXX_COMPILER__serial_uns
   DEFINES = -Dserial_EXPORTS
   DEP_FILE = CMakeFiles/serial.dir/lib/serial/src/serial.cc.o.d
   FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
   OBJECT_DIR = CMakeFiles/serial.dir
   OBJECT_FILE_DIR = CMakeFiles/serial.dir/lib/serial/src
 
@@ -61,7 +61,7 @@ build CMakeFiles/serial.dir/lib/serial/src/impl/unix.cc.o: CXX_COMPILER__serial_
   DEFINES = -Dserial_EXPORTS
   DEP_FILE = CMakeFiles/serial.dir/lib/serial/src/impl/unix.cc.o.d
   FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
   OBJECT_DIR = CMakeFiles/serial.dir
   OBJECT_FILE_DIR = CMakeFiles/serial.dir/lib/serial/src/impl
 
@@ -69,7 +69,7 @@ build CMakeFiles/serial.dir/lib/serial/src/impl/list_ports/list_ports_linux.cc.o
   DEFINES = -Dserial_EXPORTS
   DEP_FILE = CMakeFiles/serial.dir/lib/serial/src/impl/list_ports/list_ports_linux.cc.o.d
   FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
   OBJECT_DIR = CMakeFiles/serial.dir
   OBJECT_FILE_DIR = CMakeFiles/serial.dir/lib/serial/src/impl/list_ports
 
@@ -93,19 +93,439 @@ build libserial.so: CXX_SHARED_LIBRARY_LINKER__serial_Release CMakeFiles/serial.
   TARGET_PDB = serial.so.dbg
 
 # =============================================================================
+# Object build statements for SHARED_LIBRARY target log4
+
+
+#############################################
+# Order-only phony target for log4
+
+build cmake_object_order_depends_target_log4: phony || CMakeFiles/log4.dir
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/Appender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/Appender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/Appender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/AppenderSkeleton.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/AppenderSkeleton.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/AppenderSkeleton.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/AppendersFactory.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/AppendersFactory.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/AppendersFactory.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/BufferingAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/BufferingAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/BufferingAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/FactoryParams.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/FactoryParams.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/FactoryParams.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/LayoutsFactory.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/LayoutsFactory.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/LayoutsFactory.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/LevelEvaluator.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/LevelEvaluator.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/LevelEvaluator.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/Localtime.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/Localtime.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/Localtime.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/PassThroughLayout.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/PassThroughLayout.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/PassThroughLayout.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/TriggeringEventEvaluatorFactory.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/TriggeringEventEvaluatorFactory.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/TriggeringEventEvaluatorFactory.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/LayoutAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/LayoutAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/LayoutAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/FileAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/FileAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/FileAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/DailyRollingFileAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/DailyRollingFileAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/DailyRollingFileAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/RollingFileAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/RollingFileAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/RollingFileAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/GenerationalFileAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/GenerationalFileAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/GenerationalFileAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/FixedContextCategory.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/FixedContextCategory.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/FixedContextCategory.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/IdsaAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/IdsaAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/IdsaAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/OstreamAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/OstreamAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/OstreamAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/StringQueueAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/StringQueueAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/StringQueueAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/SyslogAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/SyslogAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/SyslogAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/RemoteSyslogAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/RemoteSyslogAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/RemoteSyslogAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/SimpleLayout.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/SimpleLayout.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/SimpleLayout.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/BasicLayout.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/BasicLayout.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/BasicLayout.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/PatternLayout.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/PatternLayout.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/PatternLayout.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/Category.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/Category.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/Category.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/CategoryStream.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/CategoryStream.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/CategoryStream.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/HierarchyMaintainer.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/HierarchyMaintainer.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/HierarchyMaintainer.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/Configurator.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/Configurator.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/Configurator.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/BasicConfigurator.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/BasicConfigurator.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/BasicConfigurator.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/SimpleConfigurator.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/SimpleConfigurator.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/SimpleConfigurator.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/PropertyConfigurator.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/PropertyConfigurator.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/PropertyConfigurator.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/PropertyConfiguratorImpl.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/PropertyConfiguratorImpl.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/PropertyConfiguratorImpl.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/LoggingEvent.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/LoggingEvent.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/LoggingEvent.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/Priority.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/Priority.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/Priority.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/NDC.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/NDC.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/NDC.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/Filter.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/Filter.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/Filter.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/TimeStamp.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/TimeStamp.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/TimeStamp.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/StringUtil.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/StringUtil.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/StringUtil.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/Properties.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/Properties.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/Properties.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/Win32DebugAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/Win32DebugAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/Win32DebugAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/NTEventLogAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/NTEventLogAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/NTEventLogAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/DllMain.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/DllMain.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/DllMain.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/DummyThreads.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/DummyThreads.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/DummyThreads.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/MSThreads.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/MSThreads.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/MSThreads.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/OmniThreads.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/OmniThreads.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/OmniThreads.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/PThreads.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/PThreads.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/PThreads.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/PortabilityImpl.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/PortabilityImpl.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/PortabilityImpl.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+build CMakeFiles/log4.dir/lib/log4cpp/src/AbortAppender.cpp.o: CXX_COMPILER__log4_unscanned_Release /home/anaple/ums_sdk/lib/log4cpp/src/AbortAppender.cpp || cmake_object_order_depends_target_log4
+  DEFINES = -Dlog4_EXPORTS
+  DEP_FILE = CMakeFiles/log4.dir/lib/log4cpp/src/AbortAppender.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/log4.dir
+  OBJECT_FILE_DIR = CMakeFiles/log4.dir/lib/log4cpp/src
+
+
+# =============================================================================
+# Link build statements for SHARED_LIBRARY target log4
+
+
+#############################################
+# Link the shared library liblog4.so
+
+build liblog4.so: CXX_SHARED_LIBRARY_LINKER__log4_Release CMakeFiles/log4.dir/lib/log4cpp/src/Appender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/AppenderSkeleton.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/AppendersFactory.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/BufferingAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/FactoryParams.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/LayoutsFactory.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/LevelEvaluator.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/Localtime.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/PassThroughLayout.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/TriggeringEventEvaluatorFactory.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/LayoutAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/FileAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/DailyRollingFileAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/RollingFileAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/GenerationalFileAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/FixedContextCategory.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/IdsaAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/OstreamAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/StringQueueAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/SyslogAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/RemoteSyslogAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/SimpleLayout.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/BasicLayout.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/PatternLayout.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/Category.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/CategoryStream.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/HierarchyMaintainer.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/Configurator.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/BasicConfigurator.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/SimpleConfigurator.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/PropertyConfigurator.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/PropertyConfiguratorImpl.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/LoggingEvent.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/Priority.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/NDC.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/Filter.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/TimeStamp.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/StringUtil.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/Properties.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/Win32DebugAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/NTEventLogAppender.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/DllMain.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/DummyThreads.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/MSThreads.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/OmniThreads.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/PThreads.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/PortabilityImpl.cpp.o CMakeFiles/log4.dir/lib/log4cpp/src/AbortAppender.cpp.o
+  LANGUAGE_COMPILE_FLAGS = -O3 -DNDEBUG
+  LINK_LIBRARIES = -lpthread
+  OBJECT_DIR = CMakeFiles/log4.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  SONAME = liblog4.so
+  SONAME_FLAG = -Wl,-soname,
+  TARGET_FILE = liblog4.so
+  TARGET_PDB = log4.so.dbg
+
+# =============================================================================
 # Object build statements for SHARED_LIBRARY target ums_sdk
 
 
 #############################################
 # Order-only phony target for ums_sdk
 
-build cmake_object_order_depends_target_ums_sdk: phony || cmake_object_order_depends_target_serial
+build cmake_object_order_depends_target_ums_sdk: phony || cmake_object_order_depends_target_log4 cmake_object_order_depends_target_serial
+
+build CMakeFiles/ums_sdk.dir/src/Queue.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Release /home/anaple/ums_sdk/src/Queue.cpp || cmake_object_order_depends_target_ums_sdk
+  DEFINES = -Dums_sdk_EXPORTS
+  DEP_FILE = CMakeFiles/ums_sdk.dir/src/Queue.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
+  OBJECT_DIR = CMakeFiles/ums_sdk.dir
+  OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
 
 build CMakeFiles/ums_sdk.dir/src/battery.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Release /home/anaple/ums_sdk/src/battery.cpp || cmake_object_order_depends_target_ums_sdk
   DEFINES = -Dums_sdk_EXPORTS
   DEP_FILE = CMakeFiles/ums_sdk.dir/src/battery.cpp.o.d
   FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
   OBJECT_DIR = CMakeFiles/ums_sdk.dir
   OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
 
@@ -113,31 +533,7 @@ build CMakeFiles/ums_sdk.dir/src/crc.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Rele
   DEFINES = -Dums_sdk_EXPORTS
   DEP_FILE = CMakeFiles/ums_sdk.dir/src/crc.cpp.o.d
   FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
-  OBJECT_DIR = CMakeFiles/ums_sdk.dir
-  OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
-
-build CMakeFiles/ums_sdk.dir/src/imu.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Release /home/anaple/ums_sdk/src/imu.cpp || cmake_object_order_depends_target_ums_sdk
-  DEFINES = -Dums_sdk_EXPORTS
-  DEP_FILE = CMakeFiles/ums_sdk.dir/src/imu.cpp.o.d
-  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
-  OBJECT_DIR = CMakeFiles/ums_sdk.dir
-  OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
-
-build CMakeFiles/ums_sdk.dir/src/odom.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Release /home/anaple/ums_sdk/src/odom.cpp || cmake_object_order_depends_target_ums_sdk
-  DEFINES = -Dums_sdk_EXPORTS
-  DEP_FILE = CMakeFiles/ums_sdk.dir/src/odom.cpp.o.d
-  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
-  OBJECT_DIR = CMakeFiles/ums_sdk.dir
-  OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
-
-build CMakeFiles/ums_sdk.dir/src/params.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Release /home/anaple/ums_sdk/src/params.cpp || cmake_object_order_depends_target_ums_sdk
-  DEFINES = -Dums_sdk_EXPORTS
-  DEP_FILE = CMakeFiles/ums_sdk.dir/src/params.cpp.o.d
-  FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
   OBJECT_DIR = CMakeFiles/ums_sdk.dir
   OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
 
@@ -145,7 +541,7 @@ build CMakeFiles/ums_sdk.dir/src/queue.cpp.o: CXX_COMPILER__ums_sdk_unscanned_Re
   DEFINES = -Dums_sdk_EXPORTS
   DEP_FILE = CMakeFiles/ums_sdk.dir/src/queue.cpp.o.d
   FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
   OBJECT_DIR = CMakeFiles/ums_sdk.dir
   OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
 
@@ -153,7 +549,7 @@ build CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o: CXX_COMPILER__ums_sdk
   DEFINES = -Dums_sdk_EXPORTS
   DEP_FILE = CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o.d
   FLAGS = -O3 -DNDEBUG -fPIC -fdiagnostics-color=always
-  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/lib/serial
+  INCLUDES = -I/home/anaple/ums_sdk/include -I/home/anaple/ums_sdk/include/serial -I/home/anaple/ums_sdk/include/log4cpp -I/home/anaple/ums_sdk/lib/serial
   OBJECT_DIR = CMakeFiles/ums_sdk.dir
   OBJECT_FILE_DIR = CMakeFiles/ums_sdk.dir/src
 
@@ -165,9 +561,9 @@ build CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o: CXX_COMPILER__ums_sdk
 #############################################
 # Link the shared library libums_sdk.so
 
-build libums_sdk.so: CXX_SHARED_LIBRARY_LINKER__ums_sdk_Release CMakeFiles/ums_sdk.dir/src/battery.cpp.o CMakeFiles/ums_sdk.dir/src/crc.cpp.o CMakeFiles/ums_sdk.dir/src/imu.cpp.o CMakeFiles/ums_sdk.dir/src/odom.cpp.o CMakeFiles/ums_sdk.dir/src/params.cpp.o CMakeFiles/ums_sdk.dir/src/queue.cpp.o CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o | libserial.so || libserial.so
+build libums_sdk.so: CXX_SHARED_LIBRARY_LINKER__ums_sdk_Release CMakeFiles/ums_sdk.dir/src/Queue.cpp.o CMakeFiles/ums_sdk.dir/src/battery.cpp.o CMakeFiles/ums_sdk.dir/src/crc.cpp.o CMakeFiles/ums_sdk.dir/src/queue.cpp.o CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o | libserial.so liblog4.so || liblog4.so libserial.so
   LANGUAGE_COMPILE_FLAGS = -O3 -DNDEBUG
-  LINK_LIBRARIES = -Wl,-rpath,/home/anaple/ums_sdk/cmake-build-release  libserial.so  -lrt  -lpthread
+  LINK_LIBRARIES = -Wl,-rpath,/home/anaple/ums_sdk/cmake-build-release  libserial.so  liblog4.so  -lrt  -lpthread
   OBJECT_DIR = CMakeFiles/ums_sdk.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -202,6 +598,8 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
+build log4: phony liblog4.so
+
 build serial: phony libserial.so
 
 build ums_sdk: phony libums_sdk.so
@@ -214,7 +612,7 @@ build ums_sdk: phony libums_sdk.so
 #############################################
 # Folder: /home/anaple/ums_sdk/cmake-build-release
 
-build all: phony libserial.so libums_sdk.so
+build all: phony libserial.so liblog4.so libums_sdk.so
 
 # =============================================================================
 # Built-in targets

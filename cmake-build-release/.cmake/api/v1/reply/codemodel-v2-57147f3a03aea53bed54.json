@@ -16,7 +16,8 @@
 					"targetIndexes" : 
 					[
 						0,
-						1
+						1,
+						2
 					]
 				}
 			],
@@ -32,7 +33,8 @@
 					"targetIndexes" : 
 					[
 						0,
-						1
+						1,
+						2
 					]
 				}
 			],
@@ -40,15 +42,22 @@
 			[
 				{
 					"directoryIndex" : 0,
+					"id" : "log4::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-log4-Release-fb4c298f88e383147072.json",
+					"name" : "log4",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
 					"id" : "serial::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-serial-Release-57b1054a1dffc8bc9621.json",
+					"jsonFile" : "target-serial-Release-f7d9f17f3dc979e5402a.json",
 					"name" : "serial",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "ums_sdk::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-ums_sdk-Release-ae44c3af1b705ea5b059.json",
+					"jsonFile" : "target-ums_sdk-Release-6e5e1a7b7ef4eac49d1b.json",
 					"name" : "ums_sdk",
 					"projectIndex" : 0
 				}

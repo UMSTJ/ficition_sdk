@@ -1195,7 +1195,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "general;serial;"
+			"value" : "general;serial;general;log4;"
 		},
 		{
 			"name" : "ums_sdk_SOURCE_DIR",

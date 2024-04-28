@@ -225,7 +225,7 @@ ums_sdk_BINARY_DIR:STATIC=/home/anaple/ums_sdk/cmake-build-release
 ums_sdk_IS_TOP_LEVEL:STATIC=ON
 
 //Dependencies for the target
-ums_sdk_LIB_DEPENDS:STATIC=general;serial;
+ums_sdk_LIB_DEPENDS:STATIC=general;serial;general;log4;
 
 //Value Computed by CMake
 ums_sdk_SOURCE_DIR:STATIC=/home/anaple/ums_sdk
