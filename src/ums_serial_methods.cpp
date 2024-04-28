@@ -1,19 +1,92 @@
-#include <iomanip>
 #include "ums_serial_methods.hpp"
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <algorithm> // 引入算法库，用于 std::find
+#include <cstdint>
 
 
 
-int Rfid(std::vector<uint8_t> &byteVector)
+using namespace std;
+
+
+/****************************************
+* 
+* 查找元素存在
+* 
+*****************************************/
+size_t UmsSerialMethods::findElement(const vector<uint8_t>& buffer, uint8_t element, size_t startPos = 0) {
+    for (size_t i = startPos; i < buffer.size(); ++i) {
+        if (buffer[i] == element) {
+            return i;
+        }
+    }
+    return string::npos; // 没有找到时返回npos
+}
+
+/**********************************************************************
+函数功能：消息帧内容转义
+入口参数：std::vector<uint8_t>& arr
+返回  值：std::vector<uint8_t>
+**********************************************************************/
+std::vector<uint8_t> UmsSerialMethods::comFrameReduction(std::vector<uint8_t>& arr) {
+    std::unordered_map<uint8_t, uint8_t> fix {
+            {0x00, 0x5C}, {0x01, 0x3A}, {0x02, 0x0A}, {0x03, 0x0D}
+    };
+
+    for (size_t index = 0; index < arr.size(); ++index) {
+        if (arr[index] == 0x5C) {
+            // 检查是否有足够的空间来查找和替换
+            if (index + 1 < arr.size() && fix.find(arr[index + 1]) != fix.end()) {
+                arr[index] = fix[arr[index + 1]];
+                arr.erase(arr.begin() + index + 1); // 删除下一个元素
+            }
+        }
+    }
+    return arr;
+}
+
+bool UmsSerialMethods::extractPacket(vector<uint8_t>& buffer, vector<uint8_t>& packet) {
+    size_t start, end;
+    start = findElement(buffer, 0x3A);
+    if (start == string::npos) {
+        buffer.clear();
+        root.warn("未找到包起始头0x3A");
+        return false;
+    }
+
+    // 从包起始头后开始寻找0x0A
+    end = findElement(buffer, 0x0A, start);
+    if (end == string::npos) {
+        root.warn("未找到0x0A");
+        buffer.clear();
+        return false;
+    }
+    if(buffer[end+1] != 0x0D){
+        root.warn("未找到0x0D");
+        buffer.erase(buffer.begin()+start, buffer.begin() + end);
+        return false;
+    }
+
+    // 提取从0x3A到0x0A之间的数据
+//    packet.clear();
+    buffer.erase(buffer.begin()+start, buffer.begin() + end + 1);
+    packet.insert(packet.end(), buffer.begin() + start, buffer.begin() + end+1);
+
+    return true;
+}
+
+int UmsSerialMethods::Rfid(std::vector<uint8_t> &byteVector)
 {
     int rfid_d = -1;
-    // 使用 std::stringstream 构建十六进制字符串
+    // 使用 std::string stream 构建十六进制字符串
     std::stringstream ss;
     for (const auto &byte : byteVector)
     {
         // 将 uint8_t 格式化为十六进制并追加到 stringstream 中
         ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
     }
-    // 从 stringstream 中获取字符串
+    // 从 string stream 中获取字符串
     std::string hexString = ss.str();
     if (hexString.size() == 46)
     {
@@ -21,13 +94,14 @@ int Rfid(std::vector<uint8_t> &byteVector)
         if (hexString.substr(0, 8) == "0d3a5210")
         {
             std::string rfidHex = hexString.substr(8, 2);
-            rfid_d =  std::stoi(rfidHex, 0, 16);;
+            rfid_d = std::stoi(rfidHex, 0, 16);
+
         }
     }
     return rfid_d;
 }
 
-std::string magneticDataProcess(std::vector<uint8_t> NativeData)
+std::string UmsSerialMethods::magneticDataProcess(const std::vector<uint8_t>& NativeData)
 {
     std::string MagneticSensorData;
     std::stringstream ss;
@@ -43,7 +117,7 @@ std::string magneticDataProcess(std::vector<uint8_t> NativeData)
     return MagneticSensorData;
 }
 
-int32_t HexArrayToInt32(uint8_t *hexArray, size_t size)
+int32_t UmsSerialMethods::HexArrayToInt32(uint8_t *hexArray, size_t size)
 {
     // 检查数组大小
     if (size != sizeof(int32_t))
@@ -59,7 +133,7 @@ int32_t HexArrayToInt32(uint8_t *hexArray, size_t size)
     return value;
 }
 
-float HexArrayToFloat32(uint8_t *hexArray, size_t size)
+float UmsSerialMethods::HexArrayToFloat32(uint8_t *hexArray, size_t size)
 {
     // 检查数组大小
     if (size != sizeof(float))
@@ -77,7 +151,7 @@ float HexArrayToFloat32(uint8_t *hexArray, size_t size)
 入口参数：std::vector<std::string>& byteVector
 返回  值：byteVector
 **********************************************************************/
-std::vector<uint8_t> CompoundVector(std::vector<uint8_t> &byteVector)
+std::vector<uint8_t> UmsSerialMethods::CompoundVector(std::vector<uint8_t> &byteVector)
 {
     std::vector<uint8_t> modifiedVector; // 用于存储修改后的值
 
@@ -117,7 +191,7 @@ std::vector<uint8_t> CompoundVector(std::vector<uint8_t> &byteVector)
 入口参数：uint8_t signbit 标志位        std::vector<uint8_t>& Vector 数据
 返回  值：无
 **********************************************************************/
-std::vector<uint8_t> DataDelivery(uint8_t signbit, std::vector<uint8_t> &Vector)
+std::vector<uint8_t> UmsSerialMethods::DataDelivery(uint8_t signbit, std::vector<uint8_t> &Vector)
 {
     std::vector<uint8_t> Send_data;
     std::vector<uint8_t> ResultBytes;
@@ -150,8 +224,12 @@ std::vector<uint8_t> DataDelivery(uint8_t signbit, std::vector<uint8_t> &Vector)
 
     return Send_data;
 }
-
-void LowerParameterOperationInt(std::string readOrwrite, uint8_t address, int32_t data, std::shared_ptr<serial::Serial> Sp)
+/**********************************************************************
+函数功能：下位参写操作 INT
+入口参数：写入  address写入的地址  data写入的数据
+返回  值：无
+**********************************************************************/
+void UmsSerialMethods::LowerParameterOperationInt(const std::string& basicString, uint8_t address, int32_t data, const std::shared_ptr<serial::Serial>& Sp)
 {
     std::vector<uint8_t> read;
     std::vector<uint8_t> write_in;
@@ -162,7 +240,7 @@ void LowerParameterOperationInt(std::string readOrwrite, uint8_t address, int32_
     // 获取低字节
     uint8_t lowByte = address & 0xFF;
 
-    if (readOrwrite == "write" && Sp != nullptr)
+    if (basicString == "write" && Sp != nullptr)
     {
         write_in.push_back(highByte);
         write_in.push_back(lowByte);
@@ -181,7 +259,7 @@ void LowerParameterOperationInt(std::string readOrwrite, uint8_t address, int32_
 入口参数：red_write读取或写入  address写入的地址  data写入的数据
 返回  值：无
 **********************************************************************/
-void LowerParameterOperation(std::string red_write, uint8_t address, float data, std::shared_ptr<serial::Serial> Sp)
+void UmsSerialMethods::LowerParameterOperation(const std::string& red_write, uint8_t address, float data, const std::shared_ptr<serial::Serial>& Sp)
 {
     std::vector<uint8_t> read;
     std::vector<uint8_t> write_in;
@@ -192,7 +270,7 @@ void LowerParameterOperation(std::string red_write, uint8_t address, float data,
     // 获取低字节
     uint8_t lowByte = address & 0xFF;
 
-    if (red_write == "read" && Sp != nullptr)
+    if (red_write == "read" && sp != nullptr)
     {
         read.push_back(0x00);
         read.push_back(0x00);
@@ -201,6 +279,15 @@ void LowerParameterOperation(std::string red_write, uint8_t address, float data,
 
         read = DataDelivery(0x52, read);
         Sp->write(read);
+    }
+    else if (red_write == "sys" && Sp != nullptr){
+        read.push_back(0x00);
+        read.push_back(0x04);
+        read.push_back(0x00);
+        read.push_back(0x04);
+        read = DataDelivery(0x52, read);
+        Sp->write(read);
+
     }
     else if (red_write == "write" && Sp != nullptr)
     {
@@ -214,11 +301,6 @@ void LowerParameterOperation(std::string red_write, uint8_t address, float data,
         write_in = DataDelivery(0x57, write_in);
         byteVector.clear();
         Sp->write(write_in);
-        // for (const auto &element : write_in)
-        // {
-        //     std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(element) << " ";
-        // }
-        // std::cout << std::dec << std::endl;
     }
 }
 /**********************************************************************
@@ -226,7 +308,7 @@ void LowerParameterOperation(std::string red_write, uint8_t address, float data,
 入口参数：校验数据
 返回  值：是否通过校验
 **********************************************************************/
-bool DataCheck(std::vector<uint8_t> &data)
+bool UmsSerialMethods::DataCheck(std::vector<uint8_t> &data)
 {
     std::vector<uint8_t> extractedData;
 
@@ -247,14 +329,15 @@ bool DataCheck(std::vector<uint8_t> &data)
 
     if (result_h == data[data.size() - 3] && result_l == data[data.size() - 2])
     {
-        //    {   printf("2 if");
-
-        return 1;
+        return true;
     }
     else
     {
+//        root.debug("CRC16校验失败");
+//        root.debug("chigh : %02x clow: %02x", result_h, result_l);
+//        root.debug("high: %02x low: %02x", data[data.size() - 3], data[data.size() - 2]);
 
-        return 0;
+        return false;
     }
 }
 /**********************************************************************
@@ -262,7 +345,7 @@ bool DataCheck(std::vector<uint8_t> &data)
 入口参数：startIndex 开始下标    count 截取的元素个数   byteData 1组8bytes数据
 返回  值：double result
 **********************************************************************/
-double DirectionalInterception(int startIndex, int count, const std::vector<uint8_t> &byteData)
+double UmsSerialMethods::DirectionalInterception(int startIndex, int count, const std::vector<uint8_t> &byteData)
 {
     size_t startIndexs = startIndex;
     size_t counts = count;
@@ -276,7 +359,7 @@ double DirectionalInterception(int startIndex, int count, const std::vector<uint
 入口参数：std::vector<uint8_t>& byteData
 返回  值：double result
 **********************************************************************/
-double BinaryToDouble(const std::vector<uint8_t> &byteData)
+double UmsSerialMethods::BinaryToDouble(const std::vector<uint8_t> &byteData)
 {
     if (byteData.size() != sizeof(double))
     {
@@ -294,10 +377,10 @@ double BinaryToDouble(const std::vector<uint8_t> &byteData)
 入口参数：double value
 返回  值：无
 **********************************************************************/
-std::vector<uint8_t> DoubleToBytes(double value)
+std::vector<uint8_t> UmsSerialMethods::DoubleToBytes(double value)
 {
     std::vector<uint8_t> bytes;
-    uint8_t *ptr = reinterpret_cast<uint8_t *>(&value);
+    auto *ptr = reinterpret_cast<uint8_t *>(&value);
 
     for (size_t i = 0; i < sizeof(double); i++)
     {
@@ -307,11 +390,617 @@ std::vector<uint8_t> DoubleToBytes(double value)
 
     return bytes;
 }
+void UmsSerialMethods::EscapeVector(std::vector<uint8_t> &byteVector)
+{
+    int index5c = findElement(byteVector, 0x5C);
+    if(index5c != -1){
+        int indexSign = index5c+1;
+        if( byteVector [index5c] == 0x00){
+            byteVector.erase(byteVector.begin() + indexSign -1);
+            byteVector[index5c-1] = 0x5C;
+        }
+        else if(byteVector [index5c] == 0x01){
+            byteVector.erase(byteVector.begin() + indexSign -1);
+            byteVector[index5c-1] = 0x3A;
 
+        }
+        else if (byteVector [index5c] == 0x02){
+            byteVector.erase(byteVector.begin() + indexSign -1);
+            byteVector[index5c-1] = 0x0A;
 
+        } else if (byteVector [index5c] == 0x03){
+            byteVector.erase(byteVector.begin() + indexSign -1);
+            byteVector[index5c-1] = 0x0D;
+        }
+    }
+}
+PowerInfo UmsSerialMethods::PowerDataProcess(const std::vector<uint8_t>& NativeData)
+{
+    // 总线电流
+    double bus = DirectionalInterception(4, 8, NativeData);
+    // 5v输出
+    double output = DirectionalInterception(12, 8, NativeData);
+    // 输入电压
+    double input = DirectionalInterception(20, 8, NativeData);
+    // 19v输出
+    double output19 = DirectionalInterception(28, 8, NativeData);
 
-void test(uint8_t a)
+    PowerInfo result{};
+    result.bus = bus;
+    result.output5v = output;
+    result.input = input;
+    result.output19v = output19;
+    return result;
+}
+ImuInfo UmsSerialMethods::ImuDataProcess(std::vector<uint8_t> ImuData)
+{
+    std::vector<uint8_t> subVector;
+    try
+    {
+        if (ImuData[4] == 0x00)
+        {
+            subVector.insert(subVector.begin(), ImuData.begin() + 5, ImuData.begin() + 13);
+            ImuStructural.axaxis = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 13, ImuData.begin() + 21);
+            ImuStructural.ayaxis = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 21, ImuData.begin() + 29);
+            ImuStructural.azaxis = BinaryToDouble(subVector);
+            subVector.clear();
+        }
+        else if (ImuData[4] == 0x01)
+        {
+            subVector.insert(subVector.begin(), ImuData.begin() + 5, ImuData.begin() + 13);
+            ImuStructural.gxaxis = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 13, ImuData.begin() + 21);
+            ImuStructural.gyaxis = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 21, ImuData.begin() + 29);
+            ImuStructural.gzaxis = BinaryToDouble(subVector);
+            subVector.clear();
+        }
+        else if (ImuData[4] == 0x02)
+        {
+            subVector.insert(subVector.begin(), ImuData.begin() + 5, ImuData.begin() + 13);
+            ImuStructural.q0 = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 13, ImuData.begin() + 21);
+            ImuStructural.q1 = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 21, ImuData.begin() + 29);
+            ImuStructural.q2 = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 29, ImuData.begin() + 37);
+            ImuStructural.q3 = BinaryToDouble(subVector);
+            subVector.clear();
+        }
+        else if (ImuData[4] == 0x03)
+        {
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 5, ImuData.begin() + 13);
+            ImuStructural.pitch = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 13, ImuData.begin() + 21);
+            ImuStructural.roll = BinaryToDouble(subVector);
+            subVector.clear();
+
+            subVector.insert(subVector.begin(), ImuData.begin() + 21, ImuData.begin() + 29);
+            ImuStructural.yaw = BinaryToDouble(subVector);
+            subVector.clear();
+        }
+    }
+    catch (const std::exception &e)
+    {
+        // std::cerr << e.what() << '\n';
+    }
+    subVector.clear();
+    return ImuStructural;
+}
+std::shared_ptr<serial::Serial> UmsSerialMethods::getSerial()
 {
 
-    printf("hello %d\r\n", a);
+    if (spThread.joinable())
+    {
+        spThread.join(); // 确保之前的线程已经完成
+
+    }
+    return sp;
+
 }
+void UmsSerialMethods::createSerial(const std::string& portName, int baudRate)
+{
+    while (!stopFlag)
+    {
+        try
+        {
+            sp = std::make_shared<serial::Serial>(portName, baudRate, serial::Timeout::simpleTimeout(1000));
+            if(sp->isOpen()){
+                lastReceiveTime = std::chrono::steady_clock::now();
+                timeoutOccurred = false;
+                bool checkFin = false;
+                std::thread timeoutThread(&UmsSerialMethods::monitorTimeout, this);
+                while (sp->available() != 0 &&!stopFlag && !timeoutOccurred){
+                    std::string str = sp->readline();
+                    stopFlag = false;
+                    std::vector<uint8_t> buffer(str.begin(), str.end());
+                    buffer = comFrameReduction(buffer);
+                    if (DataCheck(buffer)) {
+                        lastReceiveTime = std::chrono::steady_clock::now();
+                        root.info("serial port "+portName+" checked successfully");
+                        checkFin = true;
+                        break;
+                    }
+                }
+                if(timeoutOccurred){
+                    root.warn("serial port "+portName+" timeout");
+                    if(timeoutThread.joinable())timeoutThread.join();
+                    sp = nullptr;
+                }
+                if(checkFin){
+                    root.info("serial port "+portName+" opened successfully");
+                    if(timeoutThread.joinable())timeoutThread.join();
+                    break;
+                }
+                if(!checkFin){
+                    root.warn("serial port "+portName+" open failed");
+                    sp = nullptr;
+                }
+            } else {
+                root.warn("serial port "+portName+" open failed");
+                sp = nullptr;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            sp = nullptr;
+            root.error("Exception thrown: %s \n port: %s", e.what(), portName.c_str());
+            sleep(3);
+        }
+    }
+    if (stopFlag)
+    {
+        root.warn("serial thread shotdown \n port: %s", portName.c_str());
+    }
+}
+OdomInfo UmsSerialMethods::OdomDataProcess(const std::vector<uint8_t>& ImuData)
+{
+    // x方向速度 vx ，y 方向速度 vy ，角速度 ωz
+    double vx_chassis;
+    double vy_chassis;
+    double wz_chassis;
+    OdomInfo result{};
+
+    vx_chassis = DirectionalInterception(4, 8, ImuData);
+    vy_chassis = DirectionalInterception(12, 8, ImuData);
+    wz_chassis = DirectionalInterception(20, 8, ImuData);
+    result.delta_x = vx_chassis;
+    result.delta_y = vy_chassis;
+    result.delta_th = wz_chassis;
+
+    return result;
+}
+bool UmsSerialMethods::ParamDataWrite() {
+    try {
+        if(sp->isOpen()){
+            std::string LC_read_write = "write";
+            if(inputParam.KP != 0)
+            LowerParameterOperation(LC_read_write, 8, inputParam.KP,sp);
+             if(inputParam.KI != 0)
+            LowerParameterOperation(LC_read_write, 12, inputParam.KI,sp);
+             if(inputParam.KD != 0)
+            LowerParameterOperation(LC_read_write, 16, inputParam.KD,sp);
+             if(inputParam.MPE != 0)
+            LowerParameterOperation(LC_read_write, 20, inputParam.MPE,sp);
+             if(inputParam.MPC != 0)
+            LowerParameterOperation(LC_read_write, 24, inputParam.MPC,sp);
+             if(inputParam.LA != 0)
+            LowerParameterOperation(LC_read_write, 28, inputParam.LA,sp
+            );
+             if(inputParam.LB != 0)
+            LowerParameterOperation(LC_read_write, 32, inputParam.LB,
+                                    sp);
+             if(inputParam.KMTT != 0)
+            LowerParameterOperationInt(LC_read_write, 36, inputParam.KMTT,sp);
+             if(inputParam.IMU_Z != 0)
+            LowerParameterOperation(LC_read_write, 40, inputParam.IMU_Z,sp);
+            return true;
+        } else{
+            return false;
+        }
+    }catch (const std::exception &e){
+        root.error("Exception thrown: %s \n", e.what());
+        return false;
+    }
+
+
+}
+ParamsData UmsSerialMethods::ParamDataRead(uint8_t *data)
+{
+    uint8_t msg_len = data[3];
+    ParamsData result{};
+    try
+    {
+        uint8_t *p = data + 4;
+        if(msg_len == 4)
+        {
+            int32_t intValue = HexArrayToInt32(p, 4);
+            result.sysStatusData = static_cast<SysStatus>(intValue);
+            result.sysStatusFrame = true;
+            return result;
+        }
+        if (msg_len == 44)
+        {
+            for (int index = 0; index <= msg_len; index = index + 4)
+            {
+                int32_t intValue = HexArrayToInt32(p + index, 4);
+                float floatValue = HexArrayToFloat32(p + index, 4);
+
+                switch (index)
+                {
+                case 8:
+                {
+                    result.KP = floatValue;
+                    break;
+                }
+                case 12:
+                {
+                    result.KI = floatValue;
+                    break;
+                }
+                case 16:
+                {
+                    result.KD = floatValue;
+                    break;
+                }
+                case 20:
+                {
+                    result.MPE = floatValue;
+                    break;
+                }
+                case 24:
+                {
+                    result.MPC = floatValue;
+                    break;
+                }
+                case 28:
+                {
+                    result.LA = floatValue;
+                    break;
+                }
+                case 32:
+                {
+                    result.LB = floatValue;
+                    break;
+                }
+                case 36:
+                {
+                    result.KMTT = intValue;
+
+                    break;
+                }
+                case 40:
+                {
+                    result.IMU_Z = floatValue;
+
+                    break;
+                }
+                default:
+                    //
+                    break;
+                }
+            }
+            result.sysStatusFrame = false;
+        }
+    }
+    catch (const std::exception &e)
+    {
+        root.error("Exception thrown: %s \n", e.what());
+    }
+    return result;
+}
+ICDRemote UmsSerialMethods::convertBackDataToControl(int channel1Value, int channel2Value, int channel3Value) {
+    float maxOutputValue = 50.0; // 最大输出值
+
+    ICDRemote icdRemoteData{};
+
+    // 自转角速度转换
+    float yawRate = ((float )channel1Value / maxOutputValue) * 180; // 假设最大自转角速度为±180度/秒
+
+    // Vx线速度转换
+    float vxSpeed = ((float )channel2Value / maxOutputValue) * 1; // 假设Vx的最大速度为±1m/s
+
+    // Vy线速度转换
+    float vySpeed = ((float )channel3Value / maxOutputValue) * 1; // 假设Vy的最大速度为±1m/s
+    icdRemoteData.az =yawRate;
+    icdRemoteData.vx = vxSpeed;
+    icdRemoteData.vy = vySpeed;
+    return icdRemoteData;
+
+
+}
+
+RCSBUSRemote UmsSerialMethods::convertRCBusRemote(std::vector<uint8_t> &byteVector) {
+    RCSBUSRemote rcsbusRemote{};
+    rcsbusRemote.len = byteVector[3];
+    for (int index = 0;index <8; index = index+2){
+        uint16_t result = (static_cast<uint16_t>(byteVector[index + 5]) << 8) | byteVector[index + 4];
+        rcsbusRemote.axes[index / 2] = result;
+    }
+    return rcsbusRemote;
+}
+void UmsSerialMethods::loopUmsFictionData(const std::shared_ptr<FictionData>& FictionData) {
+    rdThread = std::thread(&UmsSerialMethods::tdLoopUmsFictionData, this, sp, FictionData);
+    fictionData = FictionData;
+}
+
+void UmsSerialMethods::monitorTimeout() {
+    while (!stopFlag) {
+        if (std::chrono::steady_clock::now() - lastReceiveTime > std::chrono::seconds(2)) {
+            timeoutOccurred = true;
+            if(timeoutOccurred){
+                break;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+
+void UmsSerialMethods::readSerialData() {
+    try {
+        if (sp != nullptr)
+        {
+            while (!stopFlag){
+                std::string data = sp->readline();
+                while (!circularQueue->enqueue(data)){
+                        std::this_thread::sleep_for(std::chrono::milliseconds(5)); // 等待队列有空间
+                };
+
+            }
+        }
+    }
+    catch (const serial::IOException &e) {
+        root.error("read serial exception IO %s",e.what());
+        stopFlag = true;
+        if(reThread.joinable()) reThread.detach();
+        reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+    }
+    catch (const serial::SerialException &e) {
+        root.error("read serial exception %s",e.what());
+        stopFlag = true;
+        if(reThread.joinable()) reThread.detach();
+        reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+    }
+    catch (const std::exception &e) {
+        root.error("read serial exception %s",e.what());
+        stopFlag = true;
+        if(reThread.joinable()) reThread.detach();
+        reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+    }
+}
+void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial>& Sp, const std::shared_ptr<FictionData>&  FictionData) {
+    lastReceiveTime = std::chrono::steady_clock::now();
+    timeoutOccurred = false;
+    std::thread readThread(&UmsSerialMethods::readSerialData, this);
+    try {
+        if (FictionData != nullptr)
+        {
+            root.info("Serial port is open");
+            root.info("Params sending");
+            getSysStatus();
+            ParamDataWrite();
+            while (!stopFlag)
+            {
+                std::string data;
+                if(circularQueue->dequeue(data)) {
+                  std::vector<uint8_t> packet(data.begin(), data.end());
+                  packet = comFrameReduction(packet);
+                  if (DataCheck(packet))
+                  {
+                      switch (packet[2])
+                      {
+                                    case 0x41: // 电源树 总线电流、5V 输出、输入电压、19V 输出。
+                                        FictionData->powerData = PowerDataProcess(packet);
+                                        break;
+                                    case 0x42: // 参数读取操作返回内容
+                                    {
+                                        FictionData->paramsData = ParamDataRead(&packet[0]);
+                                        break;
+                                    }
+                                    case 0x45: // 磁条数据
+                                        FictionData->magneticData = magneticDataProcess(packet);
+                                        break;
+                                    case 0x51: // imu数据
+                                        FictionData->
+                                                imuStructural = ImuDataProcess(packet);
+                                        break;
+                                    case 0x52: // rfid数据
+                                        FictionData->rfidData = std::to_string(Rfid(packet));
+                                        break;
+                                    case 0x46: // 遥控数据RC SBUS
+                                    {
+                                        FictionData->rcsBusData = convertRCBusRemote(packet);
+                                    }
+                                    case 0x49: //ICD遥控
+                                    {
+                                        FictionData->icdData = convertBackDataToControl(packet[4],packet[5],packet[6]);
+                                        break;
+                                    }
+                                    case 0x4b: // 里程计
+                                    {
+                                        FictionData->odomData = OdomDataProcess(packet);
+                                        break;
+                                    }
+                                    case 0x53: // 四个电机速度数据
+                                        break;
+                                    case 0x54: // 数字式温度传感器
+                                        FictionData->temperature =static_cast<float>((packet[5] << 8) | packet[4]);
+                                        break;
+                                    case 0x55: // 超声数据
+                                        FictionData->ultrasonic = static_cast<float>((packet[5] << 8) | packet[4]);
+                                        break;
+                                    default:
+                                        // 处理默认情况
+                                        break;
+                                }
+                                packet.clear();
+                  }
+
+                }else{
+                    std::this_thread::sleep_for(std::chrono::milliseconds(5)); // 等待队列有数据
+                }
+            }
+
+//            stopFlag = true;
+//            if (timeoutThread.joinable()) timeoutThread.join();
+//            if (reThread.joinable()){
+//                root.warn("reThread running");
+//                reThread.detach();
+//            }
+//            reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+//            if(timeoutOccurred){
+//                root.warn("serial port data:  %ld , timeout", sp->available());
+//            }
+//            root.warn("read serial end \n");
+        } else{
+            root.warn("read serial fail");
+        }
+    }
+
+    catch (const std::exception &e) {
+        printf("read serial base exception %s",e.what());
+        root.error("read serial base exception %s",e.what());
+        stopFlag = true;
+        if (readThread.joinable()) readThread.join();
+        if(reThread.joinable()) reThread.detach();
+        reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+    }
+
+}
+void UmsSerialMethods::sendTwistData( const std::shared_ptr<TwistCustom>& twistData)
+{
+
+    if (sp != nullptr && twistData != nullptr && !stopFlag)
+    {
+        std::vector<uint8_t> SendHexData;
+        std::vector<uint8_t> LeftWheelSpeed = DoubleToBytes(twistData->linear_x);
+        std::vector<uint8_t> RightWheelSpeed = DoubleToBytes(twistData->linear_y);
+        std::vector<uint8_t> AngularVelocity = DoubleToBytes(twistData->angular_z);
+        SendHexData.insert(SendHexData.end(), LeftWheelSpeed.begin(), LeftWheelSpeed.end());
+        SendHexData.insert(SendHexData.end(), RightWheelSpeed.begin(), RightWheelSpeed.end());
+        SendHexData.insert(SendHexData.end(), AngularVelocity.begin(), AngularVelocity.end());
+        SendHexData = DataDelivery(0x4b, SendHexData);
+        try{
+            sp->write(SendHexData);
+        }catch (const std::exception &e) {
+            root.error("sendTwistData exception %s",e.what());
+            stopFlag = true;
+            if(reThread.joinable()) reThread.detach();
+            reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+
+        }
+
+
+    }
+}
+void UmsSerialMethods::sendMessageToGetParamData()
+{   try{
+
+        if (sp != nullptr)
+        {
+            LowerParameterOperation("read", 0, 0, sp);
+        }
+}catch (const std::exception &e) {
+
+    root.error("sendMessageToGetParamData exception %s",e.what());
+}
+}
+void UmsSerialMethods::reStartSerial(const std::string& portName, int baudRate)
+{
+    stopFlag = true;
+    if (spThread.joinable())
+    {
+        spThread.join(); // 确保之前的线程已经完成
+    }
+    if (sp != nullptr)
+    {
+        sp->close();
+    }
+    stopFlag = false;
+    spThread = std::thread(&UmsSerialMethods::createSerial, this, portName, baudRate);
+    if(spThread.joinable())spThread.join();
+    if(rdThread.joinable())rdThread.join();
+    loopUmsFictionData(fictionData);
+}
+void UmsSerialMethods::startSerial(const std::string& portName, int baudRate)
+{
+    stopFlag = false;
+    try
+    {
+        root.info("wait %s,%d",portName.c_str(),baudRate);
+        spThread = std::thread(&UmsSerialMethods::createSerial, this, portName, baudRate);
+
+    }
+    catch (const std::exception &e)
+    {
+        root.error("Exception thrown: %s", e.what());
+    }
+}
+
+void UmsSerialMethods::setParamsData(ParamsData paramsData) {
+    inputParam = paramsData;
+}
+
+
+void UmsSerialMethods::getSysStatus() {
+    if(sysStatusThread.joinable()){
+        sysStatusThread.detach();
+    }
+    sysStatusThread = std::thread(&UmsSerialMethods::loopToGetSysStatus, this);
+
+}
+
+void UmsSerialMethods::loopToGetSysStatus() {
+    while (sp!= nullptr && !stopFlag){
+        try{
+            LowerParameterOperation("sys", 0, 0, sp);
+
+        }catch (const std::exception &e){
+            root.error("loopToGetSysStatus exception %s",e.what());
+        }
+        sleep(static_cast<unsigned int>(0.8));
+
+    }
+}
+std::string UmsSerialMethods::stringToHex(const std::string& input) {
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    for (unsigned char c : input) {
+        ss << std::setw(2) << static_cast<int>(c);
+    }
+    return ss.str();
+}
+
+void UmsSerialMethods::refuseController() {
+    if(sp != nullptr){
+        //清除警报
+        LowerParameterOperationInt("write", 0, 2, sp);
+        sleep(static_cast<unsigned int>(0.1));
+        //使能电机
+        LowerParameterOperationInt("write", 0, 4, sp);
+
+    }
+
+}
+
+

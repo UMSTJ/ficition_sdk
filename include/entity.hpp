@@ -8,6 +8,14 @@ enum ControlStatus
     REMOTE_CONTROL   // 遥控控制状态
 };
 
+enum class SysStatus : int{
+    SYS_STANDBY,
+    SYS_RUNNING_URT,
+    SYS_RUNNING_JOY,
+    SYS_EMG_PSB,
+    SYS_EMG_APT
+};
+
 struct ParamsData
 {
     float KP;
@@ -19,6 +27,8 @@ struct ParamsData
     float MPC;
     int32_t KMTT;
     float IMU_Z;
+    bool sysStatusFrame; //状态帧
+    SysStatus sysStatusData; //系统运作状态
 };
 
 struct OdomInfo
@@ -53,6 +63,20 @@ struct ImuInfo
     double yaw;
     double pitch;
 };
+struct ICDRemote {
+    double az;
+    double vx;
+    double vy;
+
+};
+
+struct RCSBUSRemote {
+ int len;
+ uint16_t  axes [8];
+ uint16_t buttons [8];
+};
+
+
 
 
 
@@ -63,4 +87,20 @@ struct FictionData
     ParamsData paramsData;
     std::string magneticData;
     std::string rfidData;
+    PowerInfo powerData;
+    float ultrasonic;
+    float temperature;
+    ICDRemote icdData;
+    RCSBUSRemote rcsBusData;
+
+};
+
+
+
+
+struct TwistCustom
+{
+    float linear_x;
+    float linear_y;
+    float angular_z;
 };

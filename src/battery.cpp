@@ -1,22 +1,39 @@
-#include "battery.hpp"
-#include "ums_serial_methods.hpp"
+//
+// Created by anaple on 24-4-1.
+//
 
+#include "battery.h"
+#include <iostream>
 
-PowerInfo PowerDataProcess(std::vector<uint8_t>  NativeData){
-    // 总线电流
-    double bus = DirectionalInterception(4, 8, NativeData);
-    // 5v输出
-    double output = DirectionalInterception(12, 8, NativeData);
-    // 输入电压
-    double input = DirectionalInterception(20, 8, NativeData);
-    // 19v输出
-    double output19 = DirectionalInterception(28, 8, NativeData);
+BatteryMonitor::BatteryMonitor(double maxVoltage, double minVoltage)
+        : maxVoltage_(maxVoltage), minVoltage_(minVoltage) {
+}
 
-    PowerInfo result;
-    result.bus = bus;
-    result.output5v = output;
-    result.input= input;
-    result.output19v = output19;
-    return result;
+bool BatteryMonitor::updateVoltage(double voltage) {
+    if (voltages_.size() >= 100) {
+        voltages_.pop_front();
+    }
+    voltages_.push_back(voltage);
 
+    double averageVoltage = calculateAverage();
+
+    // 检查是否在充电，即电压是否上升
+    bool isCharging = !lastAverageVoltage_ || averageVoltage > lastAverageVoltage_;
+    lastAverageVoltage_ = averageVoltage;
+
+    return isCharging;
+}
+
+double BatteryMonitor::calculateBatteryPercentage() {
+    if (voltages_.empty()) return 0.0;
+    double currentVoltage = voltages_.back();
+    return (currentVoltage - minVoltage_) / (maxVoltage_ - minVoltage_) * 100;
+}
+
+double BatteryMonitor::calculateAverage() {
+    double sum = 0.0;
+    for (double voltage : voltages_) {
+        sum += voltage;
+    }
+    return sum / voltages_.size();
 }

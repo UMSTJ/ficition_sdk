@@ -4,11 +4,12 @@
 #include <cstdint>
 #include <cstring>
 
-
 int main()
 {
 
-    test(12);
+    UmsSerialMethods umsSerialMethods;
+    FictionData fictionData;
+    umsSerialMethods.test(1);
 
     return 0;
 }
