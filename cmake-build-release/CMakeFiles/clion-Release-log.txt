@@ -1,4 +1,0 @@
-/nix/store/zh5apkz9wlwgmnw7f2dr7q5rz8zc90b9-clion-2023.2.2/clion/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/nix/store/zh5apkz9wlwgmnw7f2dr7q5rz8zc90b9-clion-2023.2.2/clion/bin/ninja/linux/x64/ninja -G Ninja -S /home/anaple/ums_sdk -B /home/anaple/ums_sdk/cmake-build-release
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /home/anaple/ums_sdk/cmake-build-release

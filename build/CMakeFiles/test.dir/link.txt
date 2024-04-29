@@ -1,1 +1,0 @@
-/nix/store/cb4mxc1mnl97590zbbhclgvqn4iqqap7-gcc-wrapper-12.3.0/bin/g++ CMakeFiles/test.dir/example/test.cpp.o -o test  -Wl,-rpath,/home/anaple/ums_sdk/build libums_sdk.so libserial.so liblog4.so -lrt -lpthread 

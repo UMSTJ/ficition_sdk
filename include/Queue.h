@@ -27,5 +27,7 @@ public:
     bool dequeue(std::string& data);
 
     bool isEmpty() const;
+
+    int getSize() const;
 };
 #endif //UMS_SDK_QUEUE_H

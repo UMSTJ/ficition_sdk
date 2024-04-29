@@ -2,7 +2,7 @@
 // Created by anaple on 2024/4/25.
 //
 
-#include "Queue.h"
+#include "queue.h"
 
 
 bool CircularQueue::enqueue(std::string data) {
@@ -26,4 +26,8 @@ bool CircularQueue::dequeue(std::string &data) {
 
 bool CircularQueue::isEmpty() const{
     return head == tail && !isFull;
+}
+
+int CircularQueue::getSize() const{
+    return (tail - head + maxSize) % maxSize;
 }

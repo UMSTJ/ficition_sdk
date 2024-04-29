@@ -1,1 +1,0 @@
-/bin/aarch64-linux-gnu-g++-11 -fPIC -O3 -DNDEBUG -shared -Wl,-soname,libums_sdk.so -o libums_sdk.so CMakeFiles/ums_sdk.dir/src/Queue.cpp.o CMakeFiles/ums_sdk.dir/src/battery.cpp.o CMakeFiles/ums_sdk.dir/src/crc.cpp.o CMakeFiles/ums_sdk.dir/src/ums_serial_methods.cpp.o  -Wl,-rpath,/home/anaple/ums_sdk/cmake-build-arm64 libserial.so liblog4.so -lrt -lpthread 
