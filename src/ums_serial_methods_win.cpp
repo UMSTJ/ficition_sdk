@@ -1,7 +1,4 @@
-#include "ums_serial_methods.hpp"
-#include <iostream>
-#include <vector>
-#include <unordered_map>
+#include "ums_serial_methods_win.hpp"
 
 using namespace std;
 using namespace serial;
@@ -34,7 +31,7 @@ public:
 
 bool UmsSerialMethods::checkSignValue(uint8_t sign)
 {
-    for (uint8_t regSignValue : signedValue)
+    for (int regSignValue : signedValue)
     {
 
         if (regSignValue == sign)
@@ -60,7 +57,7 @@ void UmsSerialMethods::sendEditParamsData()
     {
         while (!ParamDataWrite())
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 等待写入
+            Sleep(10);
             /* code */
         }
     }
@@ -123,7 +120,7 @@ size_t UmsSerialMethods::findElement(const vector<uint8_t> &buffer, uint8_t elem
 
 std::vector<uint8_t> UmsSerialMethods::comFrameReduction(std::vector<uint8_t> &arr)
 {
-    std::unordered_map<uint8_t, uint8_t> fix{
+    std::map<uint8_t, uint8_t> fix{
         {0x00, 0x5C}, {0x01, 0x3A}, {0x02, 0x0A}, {0x03, 0x0D}};
 
     for (size_t index = 0; index < arr.size(); ++index)
@@ -141,39 +138,7 @@ std::vector<uint8_t> UmsSerialMethods::comFrameReduction(std::vector<uint8_t> &a
     return arr;
 }
 
-bool UmsSerialMethods::extractPacket(vector<uint8_t> &buffer, vector<uint8_t> &packet)
-{
-    size_t start, end;
-    start = findElement(buffer, 0x3A);
-    if (start == string::npos)
-    {
-        buffer.clear();
-        root.warn("未找到包起始头0x3A");
-        return false;
-    }
 
-    // 从包起始头后开始寻找0x0A
-    end = findElement(buffer, 0x0A, start);
-    if (end == string::npos)
-    {
-        root.warn("未找到0x0A");
-        buffer.clear();
-        return false;
-    }
-    if (buffer[end + 1] != 0x0D)
-    {
-        root.warn("未找到0x0D");
-        buffer.erase(buffer.begin() + start, buffer.begin() + end);
-        return false;
-    }
-
-    // 提取从0x3A到0x0A之间的数据
-    //    packet.clear();
-    buffer.erase(buffer.begin() + start, buffer.begin() + end + 1);
-    packet.insert(packet.end(), buffer.begin() + start, buffer.begin() + end + 1);
-
-    return true;
-}
 
 int UmsSerialMethods::Rfid(std::vector<uint8_t> &byteVector)
 {
@@ -381,7 +346,8 @@ void UmsSerialMethods::LowerParameterOperation(const std::string &red_write, uin
         read.push_back(0x00);
         read.push_back(0x04);
         read = DataDelivery(0x52, read);
-        Sp->write(read);
+        sp->write(read);
+      
     }
     else if (red_write == "write" && Sp != nullptr)
     {
@@ -756,7 +722,7 @@ void UmsSerialMethods::createSerial(const std::string &portName, int baudRate)
         {
             sp = nullptr;
             root.error("Exception thrown: " + std::string(e.what()) + "  port:" + portName);
-            sleep(3);
+            Sleep(3000);
         }
     }
     if (stopFlag)
@@ -953,7 +919,7 @@ void UmsSerialMethods::monitorTimeout()
                 break;
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        Sleep(100);
     }
 }
 
@@ -968,7 +934,7 @@ void UmsSerialMethods::readSerialData()
                 std::string data = sp->readline();
                 while (!circularQueue->enqueue(data))
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 等待队列有空间
+                    Sleep(1);
                 };
             }
         }
@@ -1088,7 +1054,7 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
                 }
                 else
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 等待队列有数据
+                    Sleep(1);
                 }
             }
 
@@ -1219,13 +1185,13 @@ void UmsSerialMethods::loopToGetSysStatus()
         try
         {
             LowerParameterOperation("sys", 0, 0, sp);
-            sleep(static_cast<unsigned int>(2));
+            Sleep(2000);
         }
         catch (const std::exception &e)
         {
             root.error("loopToGetSysStatus exception %s", e.what());
         }
-        sleep(static_cast<unsigned int>(0.8));
+        Sleep(800);
     }
 }
 std::string UmsSerialMethods::stringToHex(const std::string &input)
@@ -1245,7 +1211,7 @@ void UmsSerialMethods::refuseController()
     {
         // 清除警报
         LowerParameterOperationInt("write", 0, 2, sp);
-        sleep(static_cast<unsigned int>(0.1));
+        Sleep(150);
         // 使能电机
         LowerParameterOperationInt("write", 0, 4, sp);
     }

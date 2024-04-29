@@ -15,12 +15,13 @@
 #include <future>
 #include "serial/serial.h"
 #include "crc.hpp"
-#include <unistd.h>
+#include <Windows.h>
 #include "entity.hpp"
 #include <log4cpp/Category.hh>
 #include <log4cpp/OstreamAppender.hh>
 #include <log4cpp/PatternLayout.hh>
 #include "queue.h"
+
 
 using namespace std;
 
@@ -34,11 +35,16 @@ public:
     void reStartSerial(const std::string &portName, int baudRate);
     void startSerial(const std::string &portName, int baudRate);
     void setParamsData(ParamsData paramsData);
+    bool checkSignValue(int sign);
+    bool checkDataLength(int signLength, size_t size);
     void sendEditParamsData();
     void refuseController();
     UmsSerialMethods();
-    UmsSerialMethods(const std::string &portName, int baudRate, bool isDebug, int queueSize,AgreementVersion agreementVersion);
-
+    UmsSerialMethods(const std::string &portName, int baudRate, bool isDebug, int queueSize);
+    ~UmsSerialMethods()
+    {
+        sp.reset();
+    }
 
 private:
     bool checkDataLength(uint8_t signLength, size_t size);
@@ -131,7 +137,7 @@ private:
     std::shared_ptr<serial::Serial> sp;
     std::shared_ptr<FictionData> fictionData;
 
-    std::atomic<bool> stopFlag {false};
+    std::atomic<bool> stopFlag { false};
     std::atomic<bool> timeoutOccurred{};
     std::chrono::steady_clock::time_point lastReceiveTime;
     std::thread spThread;
@@ -150,6 +156,7 @@ private:
     bool extractPacket(vector<uint8_t> &buffer, vector<uint8_t> &packet);
 
     std::vector<uint8_t> comFrameReduction(std::vector<uint8_t> &arr);
+    UmsSerialMethods(const std::string& portName, int baudRate, bool isDebug, int queueSize, AgreementVersion agreementVersion);
     size_t findElement(const vector<uint8_t> &buffer, uint8_t element, size_t startPos);
 
     void readSerialData();

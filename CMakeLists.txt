@@ -1,53 +1,67 @@
-cmake_minimum_required(VERSION 3.10)  
-project(ums_sdk)  
-# 设置头文件和库的搜索路径  
+cmake_minimum_required(VERSION 3.10)
+project(ums_sdk)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# 设置头文件和库的搜索路径
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include/serial)
 include_directories(${CMAKE_SOURCE_DIR}/include/log4cpp)
 #include_directories(${CMAKE_SOURCE_DIR}/lib/serial)
 
-#
-#set(CSerialPortRootPath ${CMAKE_SOURCE_DIR}/lib/cserial)
-#include_directories(${CMAKE_SOURCE_DIR}/include/CSerialPort)
-#list(APPEND CSerialPortSourceFiles ${CSerialPortRootPath}/src/SerialPort.cpp ${CSerialPortRootPath}/src/SerialPortBase.cpp ${CSerialPortRootPath}/src/SerialPortInfo.cpp ${CSerialPortRootPath}/src/SerialPortInfoBase.cpp)
-#if (WIN32)
-#    list(APPEND CSerialPortSourceFiles ${CSerialPortRootPath}/src/SerialPortInfoWinBase.cpp ${CSerialPortRootPath}/src/SerialPortWinBase.cpp)
-#    if (BUILD_SHARED_LIBS)
-#        list(APPEND CSerialPortSourceFiles version.rc)
-#    endif()
-#elseif (UNIX)
-#    list(APPEND CSerialPortSourceFiles ${CSerialPortRootPath}/src/SerialPortInfoUnixBase.cpp ${CSerialPortRootPath}/src/SerialPortUnixBase.cpp)
-#endif ()
-#
-#if (NOT MSVC)
-## unix clang-tidy
-## $ run-clang-tidy
-#set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-#endif()
-#
-#add_library(cserial ${CSerialPortSourceFiles})
-#
-## remove prefix
-#set_target_properties( cserial PROPERTIES PREFIX "")
-#
-## preprocessor definitions for compiling CSerialPort library
-#set_target_properties( cserial PROPERTIES COMPILE_DEFINITIONS BUILDING_LIBCSERIALPORT)
-#
-#target_link_libraries( cserial pthread)
-#
 
-
-set(serial_SRCS
-    lib/serial/src/serial.cc
-    include/serial/serial.h
-    include/serial/v8stdint.h
+    if(APPLE)
+            find_library(IOKIT_LIBRARY IOKit)
+            find_library(FOUNDATION_LIBRARY Foundation)
+    endif()
+    if(UNIX AND NOT APPLE)
+            # If Linux, add rt and pthread
+            set(rt_LIBRARIES rt)
+            set(pthread_LIBRARIES pthread)
+    else()
+            # Otherwise normal call
+    endif()
+    ## Sources
+    set(serial_SRCS
+            lib/serial/src/serial.cc
+            include/serial/serial.h
+            include/serial/v8stdint.h
 )
+    if(APPLE)
+        # If OSX
+        list(APPEND serial_SRCS  lib/serial/src/impl/unix.cc)
+        list(APPEND serial_SRCS  lib/serial/src/impl/list_ports/list_ports_osx.cc)
+    elseif(UNIX)
+        # If unix
+        list(APPEND serial_SRCS  lib/serial/src/impl/unix.cc)
+        list(APPEND serial_SRCS lib/serial/src/impl/list_ports/list_ports_linux.cc)
+    else()
+        # If windows
+        list(APPEND serial_SRCS  lib/serial/src/impl/win.cc)
+        list(APPEND serial_SRCS  lib/serial/src/impl/list_ports/list_ports_win.cc)
+    endif()
+
+    ## Add serial library
+    add_library(serial SHARED ${serial_SRCS})
+    if(APPLE)
+        target_link_libraries(serial ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
+    elseif(UNIX)
+        target_link_libraries(serial rt pthread)
+    else()
+        target_link_libraries(serial setupapi)
+    endif()
 
 
-list(APPEND serial_SRCS lib/serial/src/impl/unix.cc)
-list(APPEND serial_SRCS lib/serial/src/impl/list_ports/list_ports_linux.cc)
-add_library(serial SHARED ${serial_SRCS})
-target_link_libraries(serial rt pthread)
+
+    IF (WIN32)
+      SET (CMAKE_DEBUG_POSTFIX "d")
+      LIST(APPEND LOG4CPP_CFLAGS -D_CRT_SECURE_NO_WARNINGS -DLOG4CPP_HAS_DLL -DLOG4CPP_BUILD_DLL )
+    ELSE (WIN32)
+      IF (APPLE)
+    #	LIST(APPEND LOG4CPP_CFLAGS -DLOG4CPP_HAVE_SSTREAM)
+      ELSE (APPLE)
+	    LIST(APPEND LOG4CPP_CFLAGS -pthread)
+      ENDIF (APPLE)
+    ENDIF (WIN32)
 
 
 set(LOG4_SRCS
@@ -102,23 +116,42 @@ set(LOG4_SRCS
 )
 
 add_library(log4 SHARED ${LOG4_SRCS})
+IF (WIN32)
+  TARGET_LINK_LIBRARIES (log4 kernel32 user32 ws2_32 advapi32 )
+#  SET_TARGET_PROPERTIES(${LOG4CPP_LIBRARY_NAME} PROPERTIES LINK_FLAGS /NODEFAULTLIB:msvcrt)
+ENDIF (WIN32)
+if(UNIX)
 target_link_libraries(log4 pthread)
+ENDIF (UNIX)
 
 
-
+if(UNIX)
 FILE(GLOB SDK_SRC
-  "src/*.cpp"
+  "src/battery.cpp"
+  "src/crc.cpp"
+  "src/queue.cpp"
+  "src/ums_serial_methods.cpp"
 )
+endif(UNIX)
+if(WIN32)
+FILE(GLOB SDK_SRC
+  "src/battery.cpp"
+  "src/crc.cpp"
+  "src/queue.cpp"
+  "src/ums_serial_methods_win.cpp"
+)
+endif(WIN32)
+
 # 添加源文件并生成共享库
 add_library(ums_sdk SHARED ${SDK_SRC})
-set_target_properties(ums_sdk PROPERTIES OUTPUT_NAME "ums_sdk")  
-target_link_libraries(ums_sdk serial  log4)
+set_target_properties(ums_sdk PROPERTIES OUTPUT_NAME "ums_sdk")
+target_link_libraries(ums_sdk serial log4)
 
 
 add_executable(example
         example/main.cpp
 )
-target_link_libraries(example   ums_sdk serial log4)
+target_link_libraries(example ums_sdk serial log4)
 
 
 
