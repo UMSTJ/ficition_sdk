@@ -2,42 +2,133 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-#include <algorithm> // 引入算法库，用于 std::find
-#include <cstdint>
 
 
 
 using namespace std;
+using namespace serial;
+
+class CustomLayout : public log4cpp::Layout
+{
+public:
+    virtual ~CustomLayout() {}
+
+    virtual std::string format(const log4cpp::LoggingEvent &event)
+    {
+        std::ostringstream stream;
 
 
-/****************************************
-* 
-* 查找元素存在
-* 
-*****************************************/
-size_t UmsSerialMethods::findElement(const vector<uint8_t>& buffer, uint8_t element, size_t startPos = 0) {
-    for (size_t i = startPos; i < buffer.size(); ++i) {
-        if (buffer[i] == element) {
+
+        // 获取当前时间
+        time_t rawtime;
+        struct tm *timeinfo;
+        char buffer[80];
+
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
+
+        strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
+        std::string strTime(buffer);
+
+        // 设定自定义格式
+        stream << "[" << event.threadName << event.categoryName << event.ndc<< event.priority <<"] " << strTime << " [UMS_FICTION_SDK] : " << event.message << "\n";
+        return stream.str();
+    }
+};
+
+bool UmsSerialMethods::checkSignValue(int sign) {
+for (int regSignValue : signedValue){
+
+    if (regSignValue == sign) return true;
+
+}
+    return false;
+}
+bool UmsSerialMethods::checkDataLength(int signLength, size_t size) {
+
+    if((size - signLength) - 7 == 0){
+        return true;
+    } else{
+        return false;
+    }
+}
+void UmsSerialMethods::sendEditParamsData()
+{
+    try
+    {
+        while (!ParamDataWrite())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 等待写入
+            /* code */
+        }
+    }
+    catch (const std::exception &e)
+    {
+        root.error("UmsSerialMethods::sendEditParamsData() error: " + std::string(e.what()));
+    }
+}
+
+UmsSerialMethods::UmsSerialMethods()
+{
+    circularQueue = std::make_shared<CircularQueue>(85);
+    // 创建一个输出到标准输出的Appender
+    log4cpp::OstreamAppender *osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
+
+    // 创建布局并设置模式
+    osAppender->setLayout(new CustomLayout());
+
+    root.setPriority(log4cpp::Priority::DEBUG);
+    root.addAppender(osAppender);
+    root.info("UmsSerialSDK Init");
+}
+
+UmsSerialMethods::UmsSerialMethods(const std::string &portName, int baudRate, bool isDebug, int queueSize)
+{
+
+    circularQueue = std::make_shared<CircularQueue>(queueSize);
+    // 创建一个输出到标准输出的Appender
+    log4cpp::OstreamAppender *osAppender;
+    osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
+
+    // 将布局设置给Appender
+    osAppender->setLayout(new CustomLayout());
+    if (isDebug)
+    {
+        root.setPriority(log4cpp::Priority::DEBUG);
+    }
+    if (!isDebug)
+    {
+        root.setPriority(log4cpp::Priority::INFO);
+    }
+
+    root.addAppender(osAppender);
+    root.info("UmsSerialSDK Init start serial");
+    startSerial(portName, baudRate);
+}
+size_t UmsSerialMethods::findElement(const vector<uint8_t> &buffer, uint8_t element, size_t startPos = 0)
+{
+    for (size_t i = startPos; i < buffer.size(); ++i)
+    {
+        if (buffer[i] == element)
+        {
             return i;
         }
     }
     return string::npos; // 没有找到时返回npos
 }
 
-/**********************************************************************
-函数功能：消息帧内容转义
-入口参数：std::vector<uint8_t>& arr
-返回  值：std::vector<uint8_t>
-**********************************************************************/
-std::vector<uint8_t> UmsSerialMethods::comFrameReduction(std::vector<uint8_t>& arr) {
-    std::unordered_map<uint8_t, uint8_t> fix {
-            {0x00, 0x5C}, {0x01, 0x3A}, {0x02, 0x0A}, {0x03, 0x0D}
-    };
+std::vector<uint8_t> UmsSerialMethods::comFrameReduction(std::vector<uint8_t> &arr)
+{
+    std::unordered_map<uint8_t, uint8_t> fix{
+        {0x00, 0x5C}, {0x01, 0x3A}, {0x02, 0x0A}, {0x03, 0x0D}};
 
-    for (size_t index = 0; index < arr.size(); ++index) {
-        if (arr[index] == 0x5C) {
+    for (size_t index = 0; index < arr.size(); ++index)
+    {
+        if (arr[index] == 0x5C)
+        {
             // 检查是否有足够的空间来查找和替换
-            if (index + 1 < arr.size() && fix.find(arr[index + 1]) != fix.end()) {
+            if (index + 1 < arr.size() && fix.find(arr[index + 1]) != fix.end())
+            {
                 arr[index] = fix[arr[index + 1]];
                 arr.erase(arr.begin() + index + 1); // 删除下一个元素
             }
@@ -46,10 +137,12 @@ std::vector<uint8_t> UmsSerialMethods::comFrameReduction(std::vector<uint8_t>& a
     return arr;
 }
 
-bool UmsSerialMethods::extractPacket(vector<uint8_t>& buffer, vector<uint8_t>& packet) {
+bool UmsSerialMethods::extractPacket(vector<uint8_t> &buffer, vector<uint8_t> &packet)
+{
     size_t start, end;
     start = findElement(buffer, 0x3A);
-    if (start == string::npos) {
+    if (start == string::npos)
+    {
         buffer.clear();
         root.warn("未找到包起始头0x3A");
         return false;
@@ -57,21 +150,23 @@ bool UmsSerialMethods::extractPacket(vector<uint8_t>& buffer, vector<uint8_t>& p
 
     // 从包起始头后开始寻找0x0A
     end = findElement(buffer, 0x0A, start);
-    if (end == string::npos) {
+    if (end == string::npos)
+    {
         root.warn("未找到0x0A");
         buffer.clear();
         return false;
     }
-    if(buffer[end+1] != 0x0D){
+    if (buffer[end + 1] != 0x0D)
+    {
         root.warn("未找到0x0D");
-        buffer.erase(buffer.begin()+start, buffer.begin() + end);
+        buffer.erase(buffer.begin() + start, buffer.begin() + end);
         return false;
     }
 
     // 提取从0x3A到0x0A之间的数据
-//    packet.clear();
-    buffer.erase(buffer.begin()+start, buffer.begin() + end + 1);
-    packet.insert(packet.end(), buffer.begin() + start, buffer.begin() + end+1);
+    //    packet.clear();
+    buffer.erase(buffer.begin() + start, buffer.begin() + end + 1);
+    packet.insert(packet.end(), buffer.begin() + start, buffer.begin() + end + 1);
 
     return true;
 }
@@ -95,13 +190,12 @@ int UmsSerialMethods::Rfid(std::vector<uint8_t> &byteVector)
         {
             std::string rfidHex = hexString.substr(8, 2);
             rfid_d = std::stoi(rfidHex, 0, 16);
-
         }
     }
     return rfid_d;
 }
 
-std::string UmsSerialMethods::magneticDataProcess(const std::vector<uint8_t>& NativeData)
+std::string UmsSerialMethods::magneticDataProcess(const std::vector<uint8_t> &NativeData)
 {
     std::string MagneticSensorData;
     std::stringstream ss;
@@ -224,12 +318,8 @@ std::vector<uint8_t> UmsSerialMethods::DataDelivery(uint8_t signbit, std::vector
 
     return Send_data;
 }
-/**********************************************************************
-函数功能：下位参写操作 INT
-入口参数：写入  address写入的地址  data写入的数据
-返回  值：无
-**********************************************************************/
-void UmsSerialMethods::LowerParameterOperationInt(const std::string& basicString, uint8_t address, int32_t data, const std::shared_ptr<serial::Serial>& Sp)
+
+void UmsSerialMethods::LowerParameterOperationInt(const std::string &basicString, uint8_t address, int32_t data, const std::shared_ptr<serial::Serial> &Sp)
 {
     std::vector<uint8_t> read;
     std::vector<uint8_t> write_in;
@@ -259,7 +349,7 @@ void UmsSerialMethods::LowerParameterOperationInt(const std::string& basicString
 入口参数：red_write读取或写入  address写入的地址  data写入的数据
 返回  值：无
 **********************************************************************/
-void UmsSerialMethods::LowerParameterOperation(const std::string& red_write, uint8_t address, float data, const std::shared_ptr<serial::Serial>& Sp)
+void UmsSerialMethods::LowerParameterOperation(const std::string &red_write, uint8_t address, float data, const std::shared_ptr<serial::Serial> &Sp)
 {
     std::vector<uint8_t> read;
     std::vector<uint8_t> write_in;
@@ -280,14 +370,14 @@ void UmsSerialMethods::LowerParameterOperation(const std::string& red_write, uin
         read = DataDelivery(0x52, read);
         Sp->write(read);
     }
-    else if (red_write == "sys" && Sp != nullptr){
+    else if (red_write == "sys" && Sp != nullptr)
+    {
         read.push_back(0x00);
         read.push_back(0x04);
         read.push_back(0x00);
         read.push_back(0x04);
         read = DataDelivery(0x52, read);
         Sp->write(read);
-
     }
     else if (red_write == "write" && Sp != nullptr)
     {
@@ -333,9 +423,14 @@ bool UmsSerialMethods::DataCheck(std::vector<uint8_t> &data)
     }
     else
     {
-//        root.debug("CRC16校验失败");
-//        root.debug("chigh : %02x clow: %02x", result_h, result_l);
-//        root.debug("high: %02x low: %02x", data[data.size() - 3], data[data.size() - 2]);
+                root.debug("CRC16校验失败");
+                root.debug("chigh : %02x clow: %02x", result_h, result_l);
+                root.debug("high: %02x low: %02x", data[data.size() - 3], data[data.size() - 2]);
+                for(int i = 0; i < data.size(); i++){
+                   printf("%02x", data[i]);
+                }
+        printf("\n");
+
 
         return false;
     }
@@ -393,28 +488,32 @@ std::vector<uint8_t> UmsSerialMethods::DoubleToBytes(double value)
 void UmsSerialMethods::EscapeVector(std::vector<uint8_t> &byteVector)
 {
     int index5c = findElement(byteVector, 0x5C);
-    if(index5c != -1){
-        int indexSign = index5c+1;
-        if( byteVector [index5c] == 0x00){
-            byteVector.erase(byteVector.begin() + indexSign -1);
-            byteVector[index5c-1] = 0x5C;
+    if (index5c != -1)
+    {
+        int indexSign = index5c + 1;
+        if (byteVector[index5c] == 0x00)
+        {
+            byteVector.erase(byteVector.begin() + indexSign - 1);
+            byteVector[index5c - 1] = 0x5C;
         }
-        else if(byteVector [index5c] == 0x01){
-            byteVector.erase(byteVector.begin() + indexSign -1);
-            byteVector[index5c-1] = 0x3A;
-
+        else if (byteVector[index5c] == 0x01)
+        {
+            byteVector.erase(byteVector.begin() + indexSign - 1);
+            byteVector[index5c - 1] = 0x3A;
         }
-        else if (byteVector [index5c] == 0x02){
-            byteVector.erase(byteVector.begin() + indexSign -1);
-            byteVector[index5c-1] = 0x0A;
-
-        } else if (byteVector [index5c] == 0x03){
-            byteVector.erase(byteVector.begin() + indexSign -1);
-            byteVector[index5c-1] = 0x0D;
+        else if (byteVector[index5c] == 0x02)
+        {
+            byteVector.erase(byteVector.begin() + indexSign - 1);
+            byteVector[index5c - 1] = 0x0A;
+        }
+        else if (byteVector[index5c] == 0x03)
+        {
+            byteVector.erase(byteVector.begin() + indexSign - 1);
+            byteVector[index5c - 1] = 0x0D;
         }
     }
 }
-PowerInfo UmsSerialMethods::PowerDataProcess(const std::vector<uint8_t>& NativeData)
+PowerInfo UmsSerialMethods::PowerDataProcess(const std::vector<uint8_t> &NativeData)
 {
     // 总线电流
     double bus = DirectionalInterception(4, 8, NativeData);
@@ -512,67 +611,77 @@ std::shared_ptr<serial::Serial> UmsSerialMethods::getSerial()
     if (spThread.joinable())
     {
         spThread.join(); // 确保之前的线程已经完成
-
     }
     return sp;
-
 }
-void UmsSerialMethods::createSerial(const std::string& portName, int baudRate)
+void UmsSerialMethods::createSerial(const std::string &portName, int baudRate)
 {
     while (!stopFlag)
-    {
-        try
         {
-            sp = std::make_shared<serial::Serial>(portName, baudRate, serial::Timeout::simpleTimeout(1000));
-            if(sp->isOpen()){
-                lastReceiveTime = std::chrono::steady_clock::now();
-                timeoutOccurred = false;
-                bool checkFin = false;
-                std::thread timeoutThread(&UmsSerialMethods::monitorTimeout, this);
-                while (sp->available() != 0 &&!stopFlag && !timeoutOccurred){
-                    std::string str = sp->readline();
-                    stopFlag = false;
-                    std::vector<uint8_t> buffer(str.begin(), str.end());
-                    buffer = comFrameReduction(buffer);
-                    if (DataCheck(buffer)) {
-                        lastReceiveTime = std::chrono::steady_clock::now();
-                        root.info("serial port "+portName+" checked successfully");
-                        checkFin = true;
+            try
+            {
+                sp = std::make_shared<serial::Serial>(portName, baudRate, serial::Timeout::simpleTimeout(1000));
+                if (sp->isOpen())
+                {
+                    lastReceiveTime = std::chrono::steady_clock::now();
+                    timeoutOccurred = false;
+                    bool checkFin = false;
+                    std::thread timeoutThread(&UmsSerialMethods::monitorTimeout, this);
+                    while (sp->available() != 0 && !stopFlag && !timeoutOccurred)
+                    {
+                        stopFlag = false;
+                        std::string data;
+
+                        data  = sp->readline();
+                        std::vector<uint8_t> package (data.begin(),data.end());
+                        if (DataCheck(package))
+                        {
+                            lastReceiveTime = std::chrono::steady_clock::now();
+                            root.info("serial port " + portName + " checked successfully");
+                            checkFin = true;
+                            break;
+                        }
+                    }
+                    if (timeoutOccurred)
+                    {
+                        root.warn("serial port " + portName + " timeout");
+                        if (timeoutThread.joinable())
+                            timeoutThread.join();
+                        sp = nullptr;
+                    }
+                    if (checkFin)
+                    {
+                        root.info("serial port " + portName + " opened successfully");
+                        if (timeoutThread.joinable())
+                            timeoutThread.join();
                         break;
                     }
+                    if (!checkFin)
+                    {
+                        root.warn("serial port " + portName + " open failed");
+                        sp = nullptr;
+                    }
                 }
-                if(timeoutOccurred){
-                    root.warn("serial port "+portName+" timeout");
-                    if(timeoutThread.joinable())timeoutThread.join();
+                else
+                {
+                    root.warn("serial port " + portName + " open failed");
                     sp = nullptr;
                 }
-                if(checkFin){
-                    root.info("serial port "+portName+" opened successfully");
-                    if(timeoutThread.joinable())timeoutThread.join();
-                    break;
-                }
-                if(!checkFin){
-                    root.warn("serial port "+portName+" open failed");
-                    sp = nullptr;
-                }
-            } else {
-                root.warn("serial port "+portName+" open failed");
+            }
+            catch (const std::exception &e)
+            {
                 sp = nullptr;
+                root.error("Exception thrown: %s \n port: %s", e.what(), portName.c_str());
+                printf("Ex %s",e.what());
+                sleep(3);
             }
         }
-        catch (const std::exception &e)
-        {
-            sp = nullptr;
-            root.error("Exception thrown: %s \n port: %s", e.what(), portName.c_str());
-            sleep(3);
-        }
-    }
     if (stopFlag)
     {
         root.warn("serial thread shotdown \n port: %s", portName.c_str());
     }
 }
-OdomInfo UmsSerialMethods::OdomDataProcess(const std::vector<uint8_t>& ImuData)
+OdomInfo UmsSerialMethods::OdomDataProcess(const std::vector<uint8_t> &ImuData)
 {
     // x方向速度 vx ，y 方向速度 vy ，角速度 ωz
     double vx_chassis;
@@ -589,40 +698,44 @@ OdomInfo UmsSerialMethods::OdomDataProcess(const std::vector<uint8_t>& ImuData)
 
     return result;
 }
-bool UmsSerialMethods::ParamDataWrite() {
-    try {
-        if(sp->isOpen()){
+bool UmsSerialMethods::ParamDataWrite()
+{
+    try
+    {
+        if (sp->isOpen())
+        {
             std::string LC_read_write = "write";
-            if(inputParam.KP != 0)
-            LowerParameterOperation(LC_read_write, 8, inputParam.KP,sp);
-             if(inputParam.KI != 0)
-            LowerParameterOperation(LC_read_write, 12, inputParam.KI,sp);
-             if(inputParam.KD != 0)
-            LowerParameterOperation(LC_read_write, 16, inputParam.KD,sp);
-             if(inputParam.MPE != 0)
-            LowerParameterOperation(LC_read_write, 20, inputParam.MPE,sp);
-             if(inputParam.MPC != 0)
-            LowerParameterOperation(LC_read_write, 24, inputParam.MPC,sp);
-             if(inputParam.LA != 0)
-            LowerParameterOperation(LC_read_write, 28, inputParam.LA,sp
-            );
-             if(inputParam.LB != 0)
-            LowerParameterOperation(LC_read_write, 32, inputParam.LB,
-                                    sp);
-             if(inputParam.KMTT != 0)
-            LowerParameterOperationInt(LC_read_write, 36, inputParam.KMTT,sp);
-             if(inputParam.IMU_Z != 0)
-            LowerParameterOperation(LC_read_write, 40, inputParam.IMU_Z,sp);
+            if (inputParam.KP != 0)
+                LowerParameterOperation(LC_read_write, 8, inputParam.KP, sp);
+            if (inputParam.KI != 0)
+                LowerParameterOperation(LC_read_write, 12, inputParam.KI, sp);
+            if (inputParam.KD != 0)
+                LowerParameterOperation(LC_read_write, 16, inputParam.KD, sp);
+            if (inputParam.MPE != 0)
+                LowerParameterOperation(LC_read_write, 20, inputParam.MPE, sp);
+            if (inputParam.MPC != 0)
+                LowerParameterOperation(LC_read_write, 24, inputParam.MPC, sp);
+            if (inputParam.LA != 0)
+                LowerParameterOperation(LC_read_write, 28, inputParam.LA, sp);
+            if (inputParam.LB != 0)
+                LowerParameterOperation(LC_read_write, 32, inputParam.LB,
+                                        sp);
+            if (inputParam.KMTT != 0)
+                LowerParameterOperationInt(LC_read_write, 36, inputParam.KMTT, sp);
+            if (inputParam.IMU_Z != 0)
+                LowerParameterOperation(LC_read_write, 40, inputParam.IMU_Z, sp);
             return true;
-        } else{
+        }
+        else
+        {
             return false;
         }
-    }catch (const std::exception &e){
+    }
+    catch (const std::exception &e)
+    {
         root.error("Exception thrown: %s \n", e.what());
         return false;
     }
-
-
 }
 ParamsData UmsSerialMethods::ParamDataRead(uint8_t *data)
 {
@@ -631,7 +744,7 @@ ParamsData UmsSerialMethods::ParamDataRead(uint8_t *data)
     try
     {
         uint8_t *p = data + 4;
-        if(msg_len == 4)
+        if (msg_len == 4)
         {
             int32_t intValue = HexArrayToInt32(p, 4);
             result.sysStatusData = static_cast<SysStatus>(intValue);
@@ -708,46 +821,52 @@ ParamsData UmsSerialMethods::ParamDataRead(uint8_t *data)
     }
     return result;
 }
-ICDRemote UmsSerialMethods::convertBackDataToControl(int channel1Value, int channel2Value, int channel3Value) {
+ICDRemote UmsSerialMethods::convertBackDataToControl(int channel1Value, int channel2Value, int channel3Value)
+{
     float maxOutputValue = 50.0; // 最大输出值
 
     ICDRemote icdRemoteData{};
 
     // 自转角速度转换
-    float yawRate = ((float )channel1Value / maxOutputValue) * 180; // 假设最大自转角速度为±180度/秒
+    float yawRate = ((float)channel1Value / maxOutputValue) * 180; // 假设最大自转角速度为±180度/秒
 
     // Vx线速度转换
-    float vxSpeed = ((float )channel2Value / maxOutputValue) * 1; // 假设Vx的最大速度为±1m/s
+    float vxSpeed = ((float)channel2Value / maxOutputValue) * 1; // 假设Vx的最大速度为±1m/s
 
     // Vy线速度转换
-    float vySpeed = ((float )channel3Value / maxOutputValue) * 1; // 假设Vy的最大速度为±1m/s
-    icdRemoteData.az =yawRate;
+    float vySpeed = ((float)channel3Value / maxOutputValue) * 1; // 假设Vy的最大速度为±1m/s
+    icdRemoteData.az = yawRate;
     icdRemoteData.vx = vxSpeed;
     icdRemoteData.vy = vySpeed;
     return icdRemoteData;
-
-
 }
 
-RCSBUSRemote UmsSerialMethods::convertRCBusRemote(std::vector<uint8_t> &byteVector) {
+RCSBUSRemote UmsSerialMethods::convertRCBusRemote(std::vector<uint8_t> &byteVector)
+{
     RCSBUSRemote rcsbusRemote{};
     rcsbusRemote.len = byteVector[3];
-    for (int index = 0;index <8; index = index+2){
+    for (int index = 0; index < 8; index = index + 2)
+    {
         uint16_t result = (static_cast<uint16_t>(byteVector[index + 5]) << 8) | byteVector[index + 4];
         rcsbusRemote.axes[index / 2] = result;
     }
     return rcsbusRemote;
 }
-void UmsSerialMethods::loopUmsFictionData(const std::shared_ptr<FictionData>& FictionData) {
+void UmsSerialMethods::loopUmsFictionData(const std::shared_ptr<FictionData> &FictionData)
+{
     rdThread = std::thread(&UmsSerialMethods::tdLoopUmsFictionData, this, sp, FictionData);
     fictionData = FictionData;
 }
 
-void UmsSerialMethods::monitorTimeout() {
-    while (!stopFlag) {
-        if (std::chrono::steady_clock::now() - lastReceiveTime > std::chrono::seconds(2)) {
+void UmsSerialMethods::monitorTimeout()
+{
+    while (!stopFlag)
+    {
+        if (std::chrono::steady_clock::now() - lastReceiveTime > std::chrono::seconds(2))
+        {
             timeoutOccurred = true;
-            if(timeoutOccurred){
+            if (timeoutOccurred)
+            {
                 break;
             }
         }
@@ -755,60 +874,79 @@ void UmsSerialMethods::monitorTimeout() {
     }
 }
 
-
-void UmsSerialMethods::readSerialData() {
-    try {
+void UmsSerialMethods::readSerialData()
+{
+    try
+    {
         if (sp != nullptr)
         {
-            while (!stopFlag){
+            while (!stopFlag)
+            {
                 std::string data = sp->readline();
-                while (!circularQueue->enqueue(data)){
-                        std::this_thread::sleep_for(std::chrono::milliseconds(5)); // 等待队列有空间
+                while (!circularQueue->enqueue(data))
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 等待队列有空间
                 };
-
             }
         }
     }
-    catch (const serial::IOException &e) {
-        root.error("read serial exception IO %s",e.what());
+    catch (const serial::IOException &e)
+    {
+        root.error("read serial exception IO %s", e.what());
         stopFlag = true;
-        if(reThread.joinable()) reThread.detach();
+        if (reThread.joinable())
+            reThread.detach();
         reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
     }
-    catch (const serial::SerialException &e) {
-        root.error("read serial exception %s",e.what());
+    catch (const serial::SerialException &e)
+    {
+        root.error("read serial exception %s", e.what());
         stopFlag = true;
-        if(reThread.joinable()) reThread.detach();
+        if (reThread.joinable())
+            reThread.detach();
         reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
     }
-    catch (const std::exception &e) {
-        root.error("read serial exception %s",e.what());
+    catch (const std::exception &e)
+    {
+        root.error("read serial exception %s", e.what());
         stopFlag = true;
-        if(reThread.joinable()) reThread.detach();
+        if (reThread.joinable())
+            reThread.detach();
         reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
     }
 }
-void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial>& Sp, const std::shared_ptr<FictionData>&  FictionData) {
+void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial> &Sp, const std::shared_ptr<FictionData> &FictionData)
+{
     lastReceiveTime = std::chrono::steady_clock::now();
     timeoutOccurred = false;
     std::thread readThread(&UmsSerialMethods::readSerialData, this);
-    try {
+    try
+    {
         if (FictionData != nullptr)
         {
-            root.info("Serial port is open");
-            root.info("Params sending");
+//            root.debug("Serial port is open");
+//            root.debug("Params sending");
             getSysStatus();
             ParamDataWrite();
-            while (!stopFlag)
-            {
+            while (!stopFlag) {
                 std::string data;
-                if(circularQueue->dequeue(data)) {
-                  std::vector<uint8_t> packet(data.begin(), data.end());
-                  packet = comFrameReduction(packet);
-                  if (DataCheck(packet))
-                  {
-                      switch (packet[2])
-                      {
+//                root.debug("Reading data");
+                //    root.debug("queue size %d", circularQueue->getSize());
+                //    root.debug("data available %d", sp->available());
+                if (circularQueue->dequeue(data)) {
+
+                    std::vector<uint8_t> packet(data.begin(), data.end());
+//                    for(int data : packet){
+//                        printf("%02x",data);
+//                    }
+//                    printf("\n");
+                    packet = comFrameReduction(packet);
+                    if (!packet.empty()) {
+                        if (packet[1] == 0x3a && packet[packet.size() - 1] == 0x0a && packet[0] == 0x0d &&
+                            checkSignValue(packet[2]), checkDataLength(packet[3], packet.size())) {
+
+                            if (DataCheck(packet)) {
+                                switch (packet[2]) {
                                     case 0x41: // 电源树 总线电流、5V 输出、输入电压、19V 输出。
                                         FictionData->powerData = PowerDataProcess(packet);
                                         break;
@@ -821,8 +959,7 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
                                         FictionData->magneticData = magneticDataProcess(packet);
                                         break;
                                     case 0x51: // imu数据
-                                        FictionData->
-                                                imuStructural = ImuDataProcess(packet);
+                                        FictionData->imuStructural = ImuDataProcess(packet);
                                         break;
                                     case 0x52: // rfid数据
                                         FictionData->rfidData = std::to_string(Rfid(packet));
@@ -831,9 +968,10 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
                                     {
                                         FictionData->rcsBusData = convertRCBusRemote(packet);
                                     }
-                                    case 0x49: //ICD遥控
+                                    case 0x49: // ICD遥控
                                     {
-                                        FictionData->icdData = convertBackDataToControl(packet[4],packet[5],packet[6]);
+                                        FictionData->icdData = convertBackDataToControl(packet[4], packet[5],
+                                                                                        packet[6]);
                                         break;
                                     }
                                     case 0x4b: // 里程计
@@ -844,7 +982,7 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
                                     case 0x53: // 四个电机速度数据
                                         break;
                                     case 0x54: // 数字式温度传感器
-                                        FictionData->temperature =static_cast<float>((packet[5] << 8) | packet[4]);
+                                        FictionData->temperature = static_cast<float>((packet[5] << 8) | packet[4]);
                                         break;
                                     case 0x55: // 超声数据
                                         FictionData->ultrasonic = static_cast<float>((packet[5] << 8) | packet[4]);
@@ -854,40 +992,48 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
                                         break;
                                 }
                                 packet.clear();
-                  }
+                            }
+                        }
+                    }
+                    } else {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 等待队列有数据
+                    }
 
-                }else{
-                    std::this_thread::sleep_for(std::chrono::milliseconds(5)); // 等待队列有数据
-                }
+
             }
 
-//            stopFlag = true;
-//            if (timeoutThread.joinable()) timeoutThread.join();
-//            if (reThread.joinable()){
-//                root.warn("reThread running");
-//                reThread.detach();
-//            }
-//            reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
-//            if(timeoutOccurred){
-//                root.warn("serial port data:  %ld , timeout", sp->available());
-//            }
-//            root.warn("read serial end \n");
-        } else{
+            //            stopFlag = true;
+            //            if (timeoutThread.joinable()) timeoutThread.join();
+            //            if (reThread.joinable()){
+            //                root.warn("reThread running");
+            //                reThread.detach();
+            //            }
+            //            reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+            //            if(timeoutOccurred){
+            //                root.warn("serial port data:  %ld , timeout", sp->available());
+            //            }
+            //            root.warn("read serial end \n");
+
+        }
+        else
+        {
             root.warn("read serial fail");
         }
     }
 
-    catch (const std::exception &e) {
-        printf("read serial base exception %s",e.what());
-        root.error("read serial base exception %s",e.what());
+    catch (const std::exception &e)
+    {
+        printf("read serial base exception %s", e.what());
+        root.error("read serial base exception %s", e.what());
         stopFlag = true;
-        if (readThread.joinable()) readThread.join();
-        if(reThread.joinable()) reThread.detach();
+        if (readThread.joinable())
+            readThread.join();
+        if (reThread.joinable())
+            reThread.detach();
         reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
     }
-
 }
-void UmsSerialMethods::sendTwistData( const std::shared_ptr<TwistCustom>& twistData)
+void UmsSerialMethods::sendTwistData(const std::shared_ptr<TwistCustom> &twistData)
 {
 
     if (sp != nullptr && twistData != nullptr && !stopFlag)
@@ -900,32 +1046,39 @@ void UmsSerialMethods::sendTwistData( const std::shared_ptr<TwistCustom>& twistD
         SendHexData.insert(SendHexData.end(), RightWheelSpeed.begin(), RightWheelSpeed.end());
         SendHexData.insert(SendHexData.end(), AngularVelocity.begin(), AngularVelocity.end());
         SendHexData = DataDelivery(0x4b, SendHexData);
-        try{
+        try
+        {
+            //LowerParameterOperation("sys", 0, 0, sp);
+//            printf("111 \n");
             sp->write(SendHexData);
-        }catch (const std::exception &e) {
-            root.error("sendTwistData exception %s",e.what());
-            stopFlag = true;
-            if(reThread.joinable()) reThread.detach();
-            reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
-
         }
-
-
+        catch (const std::exception &e)
+        {
+            root.error("sendTwistData exception %s", e.what());
+            stopFlag = true;
+            if (reThread.joinable())
+                reThread.detach();
+            reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+        }
     }
 }
 void UmsSerialMethods::sendMessageToGetParamData()
-{   try{
+{
+    try
+    {
 
         if (sp != nullptr)
         {
             LowerParameterOperation("read", 0, 0, sp);
         }
-}catch (const std::exception &e) {
+    }
+    catch (const std::exception &e)
+    {
 
-    root.error("sendMessageToGetParamData exception %s",e.what());
+        root.error("sendMessageToGetParamData exception %s", e.what());
+    }
 }
-}
-void UmsSerialMethods::reStartSerial(const std::string& portName, int baudRate)
+void UmsSerialMethods::reStartSerial(const std::string &portName, int baudRate)
 {
     stopFlag = true;
     if (spThread.joinable())
@@ -938,18 +1091,19 @@ void UmsSerialMethods::reStartSerial(const std::string& portName, int baudRate)
     }
     stopFlag = false;
     spThread = std::thread(&UmsSerialMethods::createSerial, this, portName, baudRate);
-    if(spThread.joinable())spThread.join();
-    if(rdThread.joinable())rdThread.join();
+    if (spThread.joinable())
+        spThread.join();
+    if (rdThread.joinable())
+        rdThread.join();
     loopUmsFictionData(fictionData);
 }
-void UmsSerialMethods::startSerial(const std::string& portName, int baudRate)
+void UmsSerialMethods::startSerial(const std::string &portName, int baudRate)
 {
     stopFlag = false;
     try
     {
-        root.info("wait %s,%d",portName.c_str(),baudRate);
+        root.info("wait %s,%d", portName.c_str(), baudRate);
         spThread = std::thread(&UmsSerialMethods::createSerial, this, portName, baudRate);
-
     }
     catch (const std::exception &e)
     {
@@ -957,50 +1111,55 @@ void UmsSerialMethods::startSerial(const std::string& portName, int baudRate)
     }
 }
 
-void UmsSerialMethods::setParamsData(ParamsData paramsData) {
+void UmsSerialMethods::setParamsData(ParamsData paramsData)
+{
     inputParam = paramsData;
 }
 
-
-void UmsSerialMethods::getSysStatus() {
-    if(sysStatusThread.joinable()){
+void UmsSerialMethods::getSysStatus()
+{
+    if(sysStatusThread.joinable())
+    {
         sysStatusThread.detach();
     }
     sysStatusThread = std::thread(&UmsSerialMethods::loopToGetSysStatus, this);
-
 }
 
-void UmsSerialMethods::loopToGetSysStatus() {
-    while (sp!= nullptr && !stopFlag){
-        try{
+void UmsSerialMethods::loopToGetSysStatus()
+{
+    while (sp != nullptr && !stopFlag)
+    {
+        try
+        {
             LowerParameterOperation("sys", 0, 0, sp);
-
-        }catch (const std::exception &e){
-            root.error("loopToGetSysStatus exception %s",e.what());
+            sleep(static_cast<unsigned int>(2));
+        }
+        catch (const std::exception &e)
+        {
+            root.error("loopToGetSysStatus exception %s", e.what());
         }
         sleep(static_cast<unsigned int>(0.8));
-
     }
 }
-std::string UmsSerialMethods::stringToHex(const std::string& input) {
+std::string UmsSerialMethods::stringToHex(const std::string &input)
+{
     std::stringstream ss;
     ss << std::hex << std::setfill('0');
-    for (unsigned char c : input) {
+    for (unsigned char c : input)
+    {
         ss << std::setw(2) << static_cast<int>(c);
     }
     return ss.str();
 }
 
-void UmsSerialMethods::refuseController() {
-    if(sp != nullptr){
-        //清除警报
+void UmsSerialMethods::refuseController()
+{
+    if (sp != nullptr)
+    {
+        // 清除警报
         LowerParameterOperationInt("write", 0, 2, sp);
         sleep(static_cast<unsigned int>(0.1));
-        //使能电机
+        // 使能电机
         LowerParameterOperationInt("write", 0, 4, sp);
-
     }
-
 }
-
-

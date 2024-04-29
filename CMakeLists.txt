@@ -4,7 +4,37 @@ project(ums_sdk)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include/serial)
 include_directories(${CMAKE_SOURCE_DIR}/include/log4cpp)
-include_directories(${CMAKE_SOURCE_DIR}/lib/serial)
+#include_directories(${CMAKE_SOURCE_DIR}/lib/serial)
+
+#
+#set(CSerialPortRootPath ${CMAKE_SOURCE_DIR}/lib/cserial)
+#include_directories(${CMAKE_SOURCE_DIR}/include/CSerialPort)
+#list(APPEND CSerialPortSourceFiles ${CSerialPortRootPath}/src/SerialPort.cpp ${CSerialPortRootPath}/src/SerialPortBase.cpp ${CSerialPortRootPath}/src/SerialPortInfo.cpp ${CSerialPortRootPath}/src/SerialPortInfoBase.cpp)
+#if (WIN32)
+#    list(APPEND CSerialPortSourceFiles ${CSerialPortRootPath}/src/SerialPortInfoWinBase.cpp ${CSerialPortRootPath}/src/SerialPortWinBase.cpp)
+#    if (BUILD_SHARED_LIBS)
+#        list(APPEND CSerialPortSourceFiles version.rc)
+#    endif()
+#elseif (UNIX)
+#    list(APPEND CSerialPortSourceFiles ${CSerialPortRootPath}/src/SerialPortInfoUnixBase.cpp ${CSerialPortRootPath}/src/SerialPortUnixBase.cpp)
+#endif ()
+#
+#if (NOT MSVC)
+## unix clang-tidy
+## $ run-clang-tidy
+#set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+#endif()
+#
+#add_library(cserial ${CSerialPortSourceFiles})
+#
+## remove prefix
+#set_target_properties( cserial PROPERTIES PREFIX "")
+#
+## preprocessor definitions for compiling CSerialPort library
+#set_target_properties( cserial PROPERTIES COMPILE_DEFINITIONS BUILDING_LIBCSERIALPORT)
+#
+#target_link_libraries( cserial pthread)
+#
 
 
 set(serial_SRCS
@@ -79,10 +109,18 @@ target_link_libraries(log4 pthread)
 FILE(GLOB SDK_SRC
   "src/*.cpp"
 )
-# 添加源文件并生成共享库  
-add_library(ums_sdk SHARED ${SDK_SRC})  
+# 添加源文件并生成共享库
+add_library(ums_sdk SHARED ${SDK_SRC})
 set_target_properties(ums_sdk PROPERTIES OUTPUT_NAME "ums_sdk")  
-target_link_libraries(ums_sdk serial log4)
+target_link_libraries(ums_sdk serial  log4)
+
+
+add_executable(example
+        example/main.cpp
+)
+target_link_libraries(example   ums_sdk serial log4)
+
+
 
 # 设置编译器选项  
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")

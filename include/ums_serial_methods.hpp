@@ -20,7 +20,8 @@
 #include <log4cpp/Category.hh>
 #include <log4cpp/OstreamAppender.hh>
 #include <log4cpp/PatternLayout.hh>
-#include "Queue.h"
+#include "queue.h"
+
 using namespace std;
 
 
@@ -28,64 +29,23 @@ class UmsSerialMethods
 {
 public:
     std::shared_ptr<serial::Serial> getSerial();
-    // 发送Twist运动学数据
     void sendTwistData(const std::shared_ptr<TwistCustom>& twistData);
-    // 下位数据交换主循环
     void loopUmsFictionData(const std::shared_ptr<FictionData>& FictionData);
-    // 发送获取参数命令
     void sendMessageToGetParamData();
-    // 重新启动串口
     void reStartSerial(const std::string& portName, int baudRate);
-    // 启动串口
     void startSerial(const std::string& portName, int baudRate);
-    // 设置下位需要写入的参数
     void setParamsData(ParamsData paramsData);
-    // 发送参数写入命令
-    void sendEditParamsData(){
-        ParamDataWrite();
-    }
-    // 恢复控制器
+    void sendEditParamsData();
     void refuseController();
-
-    UmsSerialMethods()
-    {
-        circularQueue = std::make_shared<CircularQueue>(4);
-        // 创建一个输出到标准输出的Appender
-        log4cpp::OstreamAppender* osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
-
-        // 创建布局并设置模式
-        log4cpp::PatternLayout* layout = new log4cpp::PatternLayout();
-        layout->setConversionPattern("[%-5p%c] [%d{%Y-%m-%d %H:%M:%S}] [UMS_SDK] : %m%n");
-
-        // 将布局设置给Appender
-        osAppender->setLayout(layout);
-        root.setPriority(log4cpp::Priority::DEBUG);
-        root.addAppender(osAppender);
-        root.info("UmsSerialSDK Init");
-
-
-    };
-    UmsSerialMethods(const std::string& portName, int baudRate)
-    {
-        circularQueue = std::make_shared<CircularQueue>(4);
-        // 创建一个输出到标准输出的Appender
-        log4cpp::OstreamAppender *osAppender;
-        osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
-
-        // 创建布局并设置模式
-        log4cpp::PatternLayout *layout;
-        layout = new log4cpp::PatternLayout();
-        layout->setConversionPattern("[%-5p%c] [%d{%Y-%m-%d %H:%M:%S}] [UMS_SDK] : %m%n");
-
-        // 将布局设置给Appender
-        osAppender->setLayout(layout);
-        root.setPriority(log4cpp::Priority::DEBUG);
-        root.addAppender(osAppender);
-        root.info("UmsSerialSDK Init start serial");
-        startSerial(portName, baudRate);
+    UmsSerialMethods();
+    UmsSerialMethods(const std::string& portName, int baudRate ,bool isDebug ,int queueSize);
+    ~UmsSerialMethods(){
+        sp.reset();
     }
 
 private:
+    bool checkDataLength(int signLength,size_t size);
+    bool checkSignValue(int sign);
     int Rfid(std::vector<uint8_t> &byteVector);
     void getSysStatus();
     std::string magneticDataProcess(const std::vector<uint8_t>& NativeData);
@@ -189,6 +149,8 @@ private:
     log4cpp::Category& root = log4cpp::Category::getRoot() ;
 
     std::shared_ptr<CircularQueue> circularQueue;
+
+    vector<int> signedValue = {0x41,0x42,0x45,0x51,0x52,0x46,0x49,0x4b,0x53,0x54,0x55};
 
 
     std::string stringToHex(const std::string &input);
