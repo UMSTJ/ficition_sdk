@@ -424,17 +424,19 @@ bool UmsSerialMethods::DataCheck(std::vector<uint8_t> &data)
     if (result_h == data[data.size() - 3] && result_l == data[data.size() - 2])
     {
         return true;
+    } else if(data[2] == 0x51 && data[4] == 0x04){
+        return true;
     }
     else
     {
         root.debug("CRC16校验失败");
         root.debug("chigh : %02x clow: %02x", result_h, result_l);
         root.debug("high: %02x low: %02x", data[data.size() - 3], data[data.size() - 2]);
-        // for (int i = 0; i < data.size(); i++)
-        // {
-        //     printf("%02x", data[i]);
-        // }
-        // printf("\n");
+        //  for (int i = 0; i < data.size(); i++)
+        //  {
+        //      printf("%02x", data[i]);
+        //  }
+        //  printf("\n");
 
         return false;
     }
@@ -540,13 +542,18 @@ ImuInfo UmsSerialMethods::ImuDataProcess(std::vector<uint8_t> ImuData)
 
     try
     {
+//        for(int i = 0; i < ImuData.size(); i++){
+//            printf("%02x", ImuData[i]);
+//        }
+//        printf("\n");
         if (ImuData[4] == 0x04 && runtimeVersion == AgreementVersion::V2)
         {
-            for (int i = 0; i < 13; i = i + 8)
+            for (int i = 0; i < 13; i = i+1)
             {
                 std::vector<uint8_t> subVector;
-                subVector.insert(subVector.begin(), ImuData.begin() + 5 + i, ImuData.begin() + 13 + i);
+                subVector.insert(subVector.begin(), ImuData.begin() + 5 + (i*8), ImuData.begin() + 13 + (i*8));
                 float value = BinaryToDouble(subVector);
+//                printf("%f", value);
                 switch (i)
                 {
                 case 0:
@@ -616,8 +623,10 @@ ImuInfo UmsSerialMethods::ImuDataProcess(std::vector<uint8_t> ImuData)
                 }
                 }
             }
+//            printf("\n");
+//            printf("ImuDataProcess: %f, %f, %f, %f, %f, %f, %f, %f, \n", ImuStructural.axaxis, ImuStructural.ayaxis, ImuStructural.azaxis, ImuStructural.gxaxis, ImuStructural.gyaxis, ImuStructural.gzaxis, ImuStructural.pitch, ImuStructural.roll);
         }
-        else if (runtimeVersion == AgreementVersion::V1)
+       else if (runtimeVersion == AgreementVersion::V1)
         {
             std::vector<uint8_t> subVector;
             if (ImuData[4] == 0x00)
@@ -1028,11 +1037,7 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
                     packet = comFrameReduction(packet);
                     if (!packet.empty())
                     {
-                        if (packet[1] == 0x3a && packet[packet.size() - 1] == 0x0a && packet[0] == 0x0d &&
-                                checkSignValue(packet[2]),
-                            checkDataLength(packet[3], packet.size()))
-                        {
-
+                        if (packet[1] == 0x3a && packet[packet.size() - 1] == 0x0a && packet[0] == 0x0d &&checkSignValue(packet[2])&&checkDataLength(packet[3], packet.size())){
                             if (DataCheck(packet))
                             {
                                 switch (packet[2])
