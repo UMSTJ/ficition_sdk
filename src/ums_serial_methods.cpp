@@ -424,7 +424,9 @@ bool UmsSerialMethods::DataCheck(std::vector<uint8_t> &data)
     if (result_h == data[data.size() - 3] && result_l == data[data.size() - 2])
     {
         return true;
-    } else if(data[2] == 0x51 && data[4] == 0x04){
+    }
+    else if (data[2] == 0x51 && data[4] == 0x04)
+    {
         return true;
     }
     else
@@ -542,18 +544,18 @@ ImuInfo UmsSerialMethods::ImuDataProcess(std::vector<uint8_t> ImuData)
 
     try
     {
-//        for(int i = 0; i < ImuData.size(); i++){
-//            printf("%02x", ImuData[i]);
-//        }
-//        printf("\n");
+        //        for(int i = 0; i < ImuData.size(); i++){
+        //            printf("%02x", ImuData[i]);
+        //        }
+        //        printf("\n");
         if (ImuData[4] == 0x04 && runtimeVersion == AgreementVersion::V2)
         {
-            for (int i = 0; i < 13; i = i+1)
+            for (int i = 0; i < 13; i = i + 1)
             {
                 std::vector<uint8_t> subVector;
-                subVector.insert(subVector.begin(), ImuData.begin() + 5 + (i*8), ImuData.begin() + 13 + (i*8));
+                subVector.insert(subVector.begin(), ImuData.begin() + 5 + (i * 8), ImuData.begin() + 13 + (i * 8));
                 float value = BinaryToDouble(subVector);
-//                printf("%f", value);
+                //                printf("%f", value);
                 switch (i)
                 {
                 case 0:
@@ -623,10 +625,10 @@ ImuInfo UmsSerialMethods::ImuDataProcess(std::vector<uint8_t> ImuData)
                 }
                 }
             }
-//            printf("\n");
-//            printf("ImuDataProcess: %f, %f, %f, %f, %f, %f, %f, %f, \n", ImuStructural.axaxis, ImuStructural.ayaxis, ImuStructural.azaxis, ImuStructural.gxaxis, ImuStructural.gyaxis, ImuStructural.gzaxis, ImuStructural.pitch, ImuStructural.roll);
+            //            printf("\n");
+            //            printf("ImuDataProcess: %f, %f, %f, %f, %f, %f, %f, %f, \n", ImuStructural.axaxis, ImuStructural.ayaxis, ImuStructural.azaxis, ImuStructural.gxaxis, ImuStructural.gyaxis, ImuStructural.gzaxis, ImuStructural.pitch, ImuStructural.roll);
         }
-       else if (runtimeVersion == AgreementVersion::V1)
+        else if (runtimeVersion == AgreementVersion::V1)
         {
             std::vector<uint8_t> subVector;
             if (ImuData[4] == 0x00)
@@ -957,10 +959,7 @@ void UmsSerialMethods::monitorTimeout()
         if (std::chrono::steady_clock::now() - lastReceiveTime > std::chrono::seconds(2))
         {
             timeoutOccurred = true;
-            if (timeoutOccurred)
-            {
-                break;
-            }
+            break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -974,37 +973,46 @@ void UmsSerialMethods::readSerialData()
         {
             while (!stopFlag)
             {
-                std::string data = sp->readline();
+                if (stopFlag) break;
+                std::string data;
+                try
+                {
+                    data = sp->readline();
+                }
+                catch (const serial::SerialException &e)
+                {
+                    if (stopFlag)
+                        break; // 如果是因为停止而抛出异常，直接退出
+                    throw;
+                }
+
+                // 添加超时控制的入队
+                auto start = std::chrono::steady_clock::now();
                 while (!circularQueue->enqueue(data))
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 等待队列有空间
-                };
+                    if (stopFlag)
+                        return;
+
+                    // 避免死循环，添加超时检查
+                    auto now = std::chrono::steady_clock::now();
+                    if (std::chrono::duration_cast<std::chrono::seconds>(now - start).count() > 5)
+                    {
+                        root.warn("Queue enqueue timeout");
+                        break;
+                    }
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
             }
         }
     }
-    catch (const serial::IOException &e)
-    {
-        root.error("read serial exception IO" + std::string(e.what()));
-        stopFlag = true;
-        if (reThread.joinable())
-            reThread.detach();
-        reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
-    }
-    catch (const serial::SerialException &e)
-    {
-        root.error("read serial exception" + std::string(e.what()));
-        stopFlag = true;
-        if (reThread.joinable())
-            reThread.detach();
-        reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
-    }
     catch (const std::exception &e)
     {
-        root.error("read serial exception " + std::string(e.what()));
-        stopFlag = true;
-        if (reThread.joinable())
-            reThread.detach();
-        reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
+        if (!stopFlag)
+        {
+            root.error("readSerialData exception: " + std::string(e.what()));
+            // 可能需要重启串口或其他错误处理
+        }
     }
 }
 void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial> &Sp, const std::shared_ptr<FictionData> &FictionData)
@@ -1023,21 +1031,15 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
             while (!stopFlag)
             {
                 std::string data;
-                //                root.debug("Reading data");
-                //    root.debug("queue size %d", circularQueue->getSize());
-                //    root.debug("data available %d", sp->available());
                 if (circularQueue->dequeue(data))
                 {
-
                     std::vector<uint8_t> packet(data.begin(), data.end());
-                    //                    for(int data : packet){
-                    //                        printf("%02x",data);
-                    //                    }
-                    //                    printf("\n");
+
                     packet = comFrameReduction(packet);
                     if (!packet.empty())
                     {
-                        if (packet[1] == 0x3a && packet[packet.size() - 1] == 0x0a && packet[0] == 0x0d &&checkSignValue(packet[2])&&checkDataLength(packet[3], packet.size())){
+                        if (packet[1] == 0x3a && packet[packet.size() - 1] == 0x0a && packet[0] == 0x0d && checkSignValue(packet[2]) && checkDataLength(packet[3], packet.size()))
+                        {
                             if (DataCheck(packet))
                             {
                                 switch (packet[2])
@@ -1224,13 +1226,16 @@ void UmsSerialMethods::loopToGetSysStatus()
         try
         {
             LowerParameterOperation("sys", 0, 0, sp);
-            sleep(static_cast<unsigned int>(2));
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
         catch (const std::exception &e)
         {
-            root.error("loopToGetSysStatus exception %s", e.what());
+            if (!stopFlag)
+            {
+                root.error("loopToGetSysStatus exception: " + std::string(e.what()));
+            }
+            break;
         }
-        sleep(static_cast<unsigned int>(0.8));
     }
 }
 std::string UmsSerialMethods::stringToHex(const std::string &input)
@@ -1242,6 +1247,23 @@ std::string UmsSerialMethods::stringToHex(const std::string &input)
         ss << std::setw(2) << static_cast<int>(c);
     }
     return ss.str();
+}
+
+void UmsSerialMethods::cleanup()
+{
+
+    if (sp != nullptr)
+    {
+        sp->close();
+    }
+    if (reThread.joinable())
+        reThread.join();
+    if (rdThread.joinable())
+        rdThread.join();
+    if (spThread.joinable())
+        spThread.join();
+    if (sysStatusThread.joinable())
+        sysStatusThread.join();
 }
 
 void UmsSerialMethods::refuseController()

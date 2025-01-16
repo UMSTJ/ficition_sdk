@@ -4,5 +4,8 @@ build/
 .vscode/
 cmake-build-arm64/
 cmake-build-release/
+cmake-build-wsl/
+cmake-build-debug-visual-studio/
+cmake-build-mingw/
 build/
 /.vs
