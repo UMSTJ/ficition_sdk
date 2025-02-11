@@ -786,9 +786,9 @@ OdomInfo UmsSerialMethods::OdomDataProcess(const std::vector<uint8_t> &ImuData)
     vx_chassis = DirectionalInterception(4, 8, ImuData);
     vy_chassis = DirectionalInterception(12, 8, ImuData);
     wz_chassis = DirectionalInterception(20, 8, ImuData);
-    result.delta_x = vx_chassis;
-    result.delta_y = vy_chassis;
-    result.delta_th = wz_chassis;
+    result.vx = vx_chassis;
+    result.vy = vy_chassis;
+    result.vth = wz_chassis;
 
     return result;
 }
