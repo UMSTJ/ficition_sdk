@@ -10,11 +10,15 @@ int main()
     umsSerialMethods->getSerial();
     std::shared_ptr<FictionData> data = make_shared<FictionData>();
     umsSerialMethods->loopUmsFictionData(data);
+    auto pwmPacket = umsSerialMethods->generatePwmPacket(0,25000);
+    umsSerialMethods->sendPwmPacket(pwmPacket);
 
     while (true)
     {
         umsSerialMethods->sendTwistData(std::make_shared<TwistCustom>());
+        
+       
         sleep(0.001);
-        // printf("battery: %f sleep(static_cast<unsigned int>(0.8)); \n",data->powerData.input);
+       // printf("battery: %f sleep(static_cast<unsigned int>(0.8)); \n",data->powerData.input);
     }
 }

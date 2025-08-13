@@ -28,6 +28,20 @@ class UmsSerialMethods
 {
 public:
     std::shared_ptr<serial::Serial> getSerial();
+     /**
+    * @brief 生成一个用于控制单个PWM通道的协议数据包。
+    *
+    * @param channel 要控制的通道号，有效范围 [0, 7]。
+    * @param pulseWidth PWM脉冲宽度值，有效范围 [0, 50000]。
+    * @return std::vector<uint8_t> 包含生成的数据包。如果输入参数无效，则返回一个空vector。
+    */
+    std::vector<uint8_t> generatePwmPacket(uint8_t channel, uint16_t pulseWidth);
+    /**
+    * @brief 发送控制单个PWM通道的协议数据包。
+    *
+    * @param pwmData 生成的数据包。
+    */
+    void sendPwmPacket(const std::vector<uint8_t> &pwmData);
     void sendTwistData(const std::shared_ptr<TwistCustom> &twistData);
     void loopUmsFictionData(const std::shared_ptr<FictionData> &FictionData);
     void sendMessageToGetParamData();
@@ -72,6 +86,18 @@ private:
 
     void tdLoopUmsFictionData(const std::shared_ptr<serial::Serial> &Sp, const std::shared_ptr<FictionData> &FictionData);
 
+
+    /**
+     * @brief 生成 UPLHZ (上传频率和端口配置) 的协议数据包。
+     *
+     * @param frequency 上传频率, 有效范围 [0, 1000] Hz.
+     * @param enableUsbCom 是否启用 USB-COM 端口 (LPUSART1).
+     * @param enableCom1 是否启用 COM1 端口 (USART1).
+     * @param enableCom2 是否启用 COM2 端口 (USART3).
+     * @return int32_t 计算出的32位配置值。如果输入频率无效，则返回 -1。
+    */
+    int32_t  generateUplhzPacket(uint16_t frequency, bool enableUsbCom, bool enableCom1, bool enableCom2);
+
     /**********************************************************************
     函数功能：消息帧内容转义
     入口参数：std::vector<std::string>& byteVector
@@ -84,7 +110,7 @@ private:
     入口参数：uint8_t signbit 标志位        std::vector<uint8_t>& Vector 数据
     返回  值：无
     **********************************************************************/
-    std::vector<uint8_t> DataDelivery(uint8_t signbit, std::vector<uint8_t> &Vector);
+    std::vector<uint8_t> DataDelivery(uint8_t signbit, const std::vector<uint8_t> &Vector);
 
     void LowerParameterOperationInt(const std::string &basicString, uint8_t address, int32_t data, const std::shared_ptr<serial::Serial> &Sp);
 
@@ -134,6 +160,9 @@ private:
     ImuInfo ImuDataProcess(std::vector<uint8_t> ImuData);
     OdomInfo OdomDataProcess(const std::vector<uint8_t> &ImuData);
     ParamsData ParamDataRead(uint8_t *data);
+
+
+   
 
     void createSerial(const std::string &portName, int baudRate);
     void monitorTimeout();

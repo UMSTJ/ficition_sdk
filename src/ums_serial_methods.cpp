@@ -289,7 +289,7 @@ std::vector<uint8_t> UmsSerialMethods::CompoundVector(std::vector<uint8_t> &byte
 入口参数：uint8_t signbit 标志位        std::vector<uint8_t>& Vector 数据
 返回  值：无
 **********************************************************************/
-std::vector<uint8_t> UmsSerialMethods::DataDelivery(uint8_t signbit, std::vector<uint8_t> &Vector)
+std::vector<uint8_t> UmsSerialMethods::DataDelivery(uint8_t signbit, const std::vector<uint8_t> &Vector)
 {
     std::vector<uint8_t> Send_data;
     std::vector<uint8_t> ResultBytes;
@@ -722,8 +722,18 @@ void UmsSerialMethods::createSerial(const std::string &portName, int baudRate)
                 timeoutOccurred = false;
                 bool checkFin = false;
                 std::thread timeoutThread(&UmsSerialMethods::monitorTimeout, this);
+                root.info("start1");
+                root.info(std::to_string(sp->available()));
+
+                if(sp->available() == 0 ){
+                    auto uplhz = generateUplhzPacket(80,true,true,true);
+                    
+                    LowerParameterOperationInt("write", 64, uplhz, sp);
+                    sleep(5);
+                }
                 while (sp->available() != 0 && !stopFlag && !timeoutOccurred)
                 {
+                    root.info("in while start");
                     stopFlag = false;
                     std::string data;
 
@@ -816,8 +826,26 @@ bool UmsSerialMethods::ParamDataWrite()
                                         sp);
             if (inputParam.KMTT != 0)
                 LowerParameterOperationInt(LC_read_write, 36, inputParam.KMTT, sp);
-            if (inputParam.IMU_Z != 0)
-                LowerParameterOperation(LC_read_write, 40, inputParam.IMU_Z, sp);
+            if (inputParam.IMU_ZOFS != 0)
+                LowerParameterOperation(LC_read_write, 40, inputParam.IMU_ZOFS, sp);
+            if (inputParam.IMU_YOFS != 0)
+                LowerParameterOperation(LC_read_write, 44, inputParam.IMU_YOFS, sp);
+            if (inputParam.IMU_XOFS != 0)
+                LowerParameterOperation(LC_read_write, 48, inputParam.IMU_XOFS, sp);
+            if (inputParam.MTDIR != 0)
+                LowerParameterOperation(LC_read_write, 52, inputParam.MTDIR, sp);
+            if (inputParam.MSNUM != 0)
+                LowerParameterOperation(LC_read_write, 56, inputParam.IMU_YOFS, sp);
+            if (inputParam.ROSID != 0)
+                LowerParameterOperation(LC_read_write, 60, inputParam.ROSID, sp);
+            if (inputParam.UPLHZ != 0)
+                LowerParameterOperationInt(LC_read_write, 64, inputParam.UPLHZ, sp);
+            if (inputParam.FUNC1 != 0)
+                LowerParameterOperation(LC_read_write, 68, inputParam.FUNC1, sp);
+            if (inputParam.FUNC2 != 0)
+                LowerParameterOperation(LC_read_write, 72, inputParam.FUNC1, sp);
+            if (inputParam.FUNC3 != 0)
+                LowerParameterOperation(LC_read_write, 76, inputParam.FUNC1, sp);
             return true;
         }
         else
@@ -897,9 +925,46 @@ ParamsData UmsSerialMethods::ParamDataRead(uint8_t *data)
                 }
                 case 40:
                 {
-                    result.IMU_Z = floatValue;
+                    result.IMU_ZOFS = floatValue;
 
                     break;
+                }
+                case 44:
+                {
+                    result.IMU_YOFS = floatValue;
+                }
+                case 48:
+                {
+                    result.IMU_XOFS = floatValue;
+
+                }
+                case 52:
+                {
+                    result.MTDIR = intValue;
+                }
+                case 56:
+                {
+                    result.MSNUM = intValue;
+                }
+                case 60:
+                {
+                    result.ROSID = intValue;
+                }
+                case 64:
+                {
+                    result.UPLHZ = intValue;
+                }
+                case 68:
+                {
+                    result.FUNC1 = intValue;
+                }
+                case 72:
+                {
+                    result.FUNC2 = intValue;
+                }
+                case 76:
+                {
+                    result.FUNC3 = intValue;
                 }
                 default:
                     //
@@ -956,7 +1021,7 @@ void UmsSerialMethods::monitorTimeout()
 {
     while (!stopFlag)
     {
-        if (std::chrono::steady_clock::now() - lastReceiveTime > std::chrono::seconds(2))
+        if (std::chrono::steady_clock::now() - lastReceiveTime > std::chrono::seconds(10))
         {
             timeoutOccurred = true;
             break;
@@ -1127,6 +1192,65 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
             reThread.detach();
         reThread = std::thread(&UmsSerialMethods::reStartSerial, this, sp->getPort(), sp->getBaudrate());
     }
+}
+
+std::vector<uint8_t> UmsSerialMethods::generatePwmPacket(uint8_t channel, uint16_t pulseWidth) {
+        // --- 1. 输入参数校验 ---
+        if (channel > 7) {
+            std::cerr << "Error: Channel number " << static_cast<int>(channel) << " is out of the valid range [0, 7]." << std::endl;
+            return {}; // 返回空vector表示失败
+        }
+        if (pulseWidth > 50000) {
+            std::cerr << "Error: Pulse width " << pulseWidth << " is out of the valid range [0, 50000]." << std::endl;
+            return {}; // 返回空vector表示失败
+        }
+        // --- 2. 创建协议数据包 ---
+        std::vector<uint8_t> packet;
+        packet.reserve(3); // 预分配5字节空间以提高效率
+        // packet.push_back(0x53); // 'S'
+        // packet.push_back(0x03);
+        packet.push_back(channel);
+        packet.push_back(static_cast<uint8_t>(pulseWidth & 0xFF));
+        packet.push_back(static_cast<uint8_t>((pulseWidth >> 8)));
+        return packet;
+}
+
+int32_t  UmsSerialMethods::generateUplhzPacket(uint16_t frequency, bool enableUsbCom, bool enableCom1, bool enableCom2) {
+        if (frequency > 1000) {
+            std::cerr << "Error: Frequency " << frequency << " is out of the valid range [0, 1000]." << std::endl;
+            return -1; // 返回-1表示错误
+        }
+
+        // --- 2. 构建32位的配置值 ---
+        // 使用 uint32_t 进行位运算是最清晰和安全的方式
+        uint32_t configValue = frequency; // 低16位为频率
+
+        // 使用位掩码设置端口
+        if (enableUsbCom) {
+            configValue |= (1U << 19); // 置第16位为1
+        }
+        if (enableCom1) {
+            configValue |= (1U << 17); // 置第17位为1
+        }
+        if (enableCom2) {
+            configValue |= (1U << 16); // 置第18位为1
+        }
+
+        // --- 3. 将结果转换为 int32_t 并返回 ---
+        return static_cast<int32_t>(configValue);
+    }
+
+void UmsSerialMethods::sendPwmPacket(const std::vector<uint8_t> &pwmData){
+    auto write_in = DataDelivery(0x53, pwmData);
+    sp->write(write_in);
+    
+    // if (pwmData.empty()) {
+    //     std::cout << "Packet is empty (generation failed)." << std::endl;
+    //     return;
+    // }
+    // if (sp != nullptr && !stopFlag){
+    //     sp->write(pwmData);
+    // }
 }
 void UmsSerialMethods::sendTwistData(const std::shared_ptr<TwistCustom> &twistData)
 {

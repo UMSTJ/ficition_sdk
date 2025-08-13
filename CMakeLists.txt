@@ -133,14 +133,6 @@ FILE(GLOB SDK_SRC
   "src/ums_serial_methods.cpp"
 )
 endif(UNIX)
-if(WIN32)
-FILE(GLOB SDK_SRC
-  "src/battery.cpp"
-  "src/crc.cpp"
-  "src/queue.cpp"
-  "src/ums_serial_methods_win.cpp"
-)
-endif(WIN32)
 
 # 添加源文件并生成共享库
 add_library(ums_sdk SHARED ${SDK_SRC})
