@@ -41,6 +41,7 @@ public:
     *
     * @param pwmData 生成的数据包。
     */
+    void stop();
     void sendPwmPacket(const std::vector<uint8_t> &pwmData);
     void sendTwistData(const std::shared_ptr<TwistCustom> &twistData);
     void loopUmsFictionData(const std::shared_ptr<FictionData> &FictionData);
@@ -52,10 +53,6 @@ public:
     void refuseController();
     UmsSerialMethods();
     UmsSerialMethods(const std::string &portName, int baudRate, bool isDebug, int queueSize,AgreementVersion agreementVersion);
-	void stop() {
-        stopFlag = true;
-        cleanup();
-    }
 
     // 添加状态查询方法
     bool isRunning() const {
@@ -150,7 +147,7 @@ private:
     std::vector<uint8_t> DoubleToBytes(double value);
 
     /**********************************************************************
-    函数功能：下位数据还原
+    函数功能：下位数据还原c
     入口参数：buffer
     返回  值：FictionData result
     **********************************************************************/

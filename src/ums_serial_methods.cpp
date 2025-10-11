@@ -87,7 +87,6 @@ UmsSerialMethods::UmsSerialMethods()
 UmsSerialMethods::UmsSerialMethods(const std::string &portName, int baudRate, bool isDebug, int queueSize, AgreementVersion agreementVersion)
 {
 
-    circularQueue = std::make_shared<CircularQueue>(queueSize);
     // 创建一个输出到标准输出的Appender
     log4cpp::OstreamAppender *osAppender;
     osAppender = new log4cpp::OstreamAppender("osAppender", &std::cout);
@@ -104,6 +103,7 @@ UmsSerialMethods::UmsSerialMethods(const std::string &portName, int baudRate, bo
     }
     // 设置IMU协议版本
     runtimeVersion = agreementVersion;
+    circularQueue = std::make_shared<CircularQueue>(queueSize);
 
     root.addAppender(osAppender);
     root.info("UmsSerialSDK Init start serial");
@@ -119,6 +119,13 @@ size_t UmsSerialMethods::findElement(const vector<uint8_t> &buffer, uint8_t elem
         }
     }
     return string::npos; // 没有找到时返回npos
+}
+
+void UmsSerialMethods::stop() {
+    stopFlag = true;
+    if(circularQueue)
+        circularQueue->stop();
+    cleanup();
 }
 
 std::vector<uint8_t> UmsSerialMethods::comFrameReduction(std::vector<uint8_t> &arr)
@@ -1051,22 +1058,11 @@ void UmsSerialMethods::readSerialData()
                     throw;
                 }
 
-                // 添加超时控制的入队
-                auto start = std::chrono::steady_clock::now();
-                while (!circularQueue->enqueue(data))
+                if (!circularQueue->enqueue(data))
                 {
-                    if (stopFlag)
-                        return;
-
-                    // 避免死循环，添加超时检查
-                    auto now = std::chrono::steady_clock::now();
-                    if (std::chrono::duration_cast<std::chrono::seconds>(now - start).count() > 5)
-                    {
-                        root.warn("Queue enqueue timeout");
+                    // enqueue a false return value, which means that the queue has been stopped.
+                    if(stopFlag)
                         break;
-                    }
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
             }
         }
@@ -1160,7 +1156,10 @@ void UmsSerialMethods::tdLoopUmsFictionData(const std::shared_ptr<serial::Serial
                 }
                 else
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 等待队列有数据
+                    // If dequeue returns false, it indicates that the queue has been stopped and is empty, and the loop will be ready to exit.
+                    if (stopFlag) {
+                        break;
+                    }
                 }
             }
 
